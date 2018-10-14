@@ -1,2 +1,3 @@
-export * from './ui/ValidInput'
 export * from './helpers'
+export * from './hocs/withFieldWatcher'
+export * from './ui/ValidInput'

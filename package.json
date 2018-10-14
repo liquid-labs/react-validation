@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "build": "catalyst-scripts \"$PWD\" build",
+    "prepare": "catalyst-scripts \"$PWD\" build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,11 +26,13 @@
   },
   "homepage": "https://github.com/Liquid-Labs/react-validation#readme",
   "devDependencies": {
-    "@liquid-labs/catalyst-scripts": "file:../../../../usr/local/lib/node_modules/@liquid-labs/catalyst-scripts"
+    "@liquid-labs/catalyst-scripts": "0.0.2"
   },
   "dependencies": {
     "@liquid-labs/mui-extensions": "0.0.1",
-    "@liquid-labs/validators": "0.0.3"
+    "@liquid-labs/validators": "0.0.3",
+    "lodash.camelcase": "^4.3.0",
+    "recompose": "^0.30.0"
   },
   "peerDependencies": {
     "@material-ui/core": "1.x || 3.x"
