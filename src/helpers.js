@@ -9,17 +9,17 @@
 // use the provided value.
 const onInputChange = (component, setFunc, propName, event, value) => {
   if (!value) {
-    const target = event.target;
+    const target = event.target
     value = target.type === 'checkbox'
-      ? (target.checked ? true : false)
-      : target.value;
+      ? (!!target.checked)
+      : target.value
   }
 
   if (setFunc) {
-    setFunc(propName, value, event);
+    setFunc(propName, value, event)
   }
   else {
-    component.setState(() => ({ [propName]: value }));
+    component.setState(() => ({ [propName] : value }))
   }
 }
 
@@ -27,8 +27,8 @@ const bindOnInputChange = (component, setFunc) => {
   // I would think we could just 'bind(component)' and then do
   // 'this.setState(...)' in the oic, but it doesn't work, so we pass the
   // component as a bound argument instead.
-  const boundOic = onInputChange.bind(null, component, setFunc);
-  return (propName) => (event, value) => { boundOic(propName, event, value); }
+  const boundOic = onInputChange.bind(null, component, setFunc)
+  return (propName) => (event, value) => { boundOic(propName, event, value) }
 }
 
 class FieldWatcher {
@@ -38,29 +38,29 @@ class FieldWatcher {
   initialValues = {}
 
   constructor(initiallyValid) {
-    return this.reset(initiallyValid);
+    return this.reset(initiallyValid)
   }
 
   registerError(label, error) {
-    this.errorTracker[label] = error;
+    this.errorTracker[label] = error
   }
 
   ignoreError(label) {
-    delete this.errorTracker[label];
+    delete this.errorTracker[label]
   }
 
   isValid() {
-    let values = Object.values(this.errorTracker);
+    let values = Object.values(this.errorTracker)
     // The validity check will generally be triggered before the field validity
     // is checked (in the field constructor). In that case, when nothing has
     // been registered, we use the 'initiallyValid' setting.
     if (values.length === 0) {
-      return this.initiallyValid;
+      return this.initiallyValid
     }
     return !values.some(value => {
-        return value;
-      }
-    );
+      return value
+    }
+    )
   }
 
   /**
@@ -68,54 +68,54 @@ class FieldWatcher {
    * should NOT display an error may have an error (e.g., 'Required').
    */
   getErrorFor(label) {
-    return this.errorTracker[label];
+    return this.errorTracker[label]
   }
 
   registerValue(label, value) {
     if (!this.initialValues[label]) {
-      this.initialValues[label] = value;
+      this.initialValues[label] = value
     }
     else if (this.initialValues[label] !== value) {
-      this.changedValues[label] = value;
+      this.changedValues[label] = value
     }
     else {
-      delete this.changedValues[label];
+      delete this.changedValues[label]
     }
   }
 
   forceChange(value) {
-    if (value === undefined) value = true;
-    this.changeForced = value;
+    if (value === undefined) value = true
+    this.changeForced = value
   }
 
   changedFields() {
-    return Object.keys(this.changedValues);
+    return Object.keys(this.changedValues)
   }
 
   isChanged() {
-    return this.changeForced || this.changedFields().length > 0;
+    return this.changeForced || this.changedFields().length > 0
   }
 
   isValidAndChanged() {
-    return this.isValid() && this.isChanged();
+    return this.isValid() && this.isChanged()
   }
 
   // TODO: is there a valid use case for 'initiallyValid' to change on reset?
   reset(initiallyValid) {
     this.initiallyValid = initiallyValid === undefined
       ? this.initiallyValid
-      : initiallyValid;
-    this.initialValues = {};
-    this.errorTracker = {};
-    this.changedValues = {};
-    this.changeForced = false;
+      : initiallyValid
+    this.initialValues = {}
+    this.errorTracker = {}
+    this.changedValues = {}
+    this.changeForced = false
 
-    return this;
+    return this
   }
 }
 
 const getFieldWatcher = (initiallyValid) => {
-  return new FieldWatcher(initiallyValid);
+  return new FieldWatcher(initiallyValid)
 }
 
 export {
