@@ -1,0 +1,41 @@
+{
+  "name": "@liquid-labs/react-validation",
+  "version": "0.0.1",
+  "description": "Provides ValidForm and ValidInput components, which add validation to Material UI components.",
+  "main": "dist/index.js",
+  "files": ["dist/"],
+  "scripts": {
+    "build": "catalyst-scripts \"$PWD\" build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Liquid-Labs/react-validation.git"
+  },
+  "keywords": [
+    "validation",
+    "react"
+  ],
+  "author": "Zane Rockenbaugh <zane@liquid-labs.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Liquid-Labs/react-validation/issues"
+  },
+  "homepage": "https://github.com/Liquid-Labs/react-validation#readme",
+  "devDependencies": {
+    "@liquid-labs/catalyst-scripts": "file:../../../../usr/local/lib/node_modules/@liquid-labs/catalyst-scripts"
+  },
+  "dependencies": {
+    "@liquid-labs/mui-extensions": "0.0.1",
+    "@liquid-labs/validators": "0.0.3"
+  },
+  "peerDependencies": {
+    "@material-ui/core": "1.x || 3.x"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
