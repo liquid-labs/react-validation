@@ -8,21 +8,21 @@ export const withFieldWatcher = (options) => {
 
   return compose(
     withStateHandlers(
-      ({mode}) => {
+      ({ mode }) => {
         const initiallyValid = (options
               && options.initiallyValid
               && options.initiallyValid(mode))
             || ((!options || !options.initiallyValid)
               && mode === 'edit')
         return {
-          [key]: getFieldWatcher(initiallyValid)
+          [key] : getFieldWatcher(initiallyValid)
         }
       },
       {
-        [resetKey]: (state) => () => {
+        [resetKey] : (state) => () => {
           const fw = state[key]
           return {
-            [key]: fw.reset()
+            [key] : fw.reset()
           }
         }
       }
