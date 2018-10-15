@@ -50,7 +50,7 @@ class FieldWatcher {
   }
 
   isValid() {
-    let values = Object.values(this.errorTracker)
+    const values = Object.values(this.errorTracker)
     // The validity check will generally be triggered before the field validity
     // is checked (in the field constructor). In that case, when nothing has
     // been registered, we use the 'initiallyValid' setting.

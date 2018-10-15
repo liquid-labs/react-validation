@@ -34,6 +34,7 @@ class ValidInputBase extends Component {
     }
 
     // TODO: I think this binding may be redundant with our construction.
+    // https://medium.com/@jacobworrel/babels-transform-class-properties-plugin-how-it-works-and-what-it-means-for-your-react-apps-6983539ffc22
     this.onBlur = this.onBlur.bind(this)
     this.doValidate = this.doValidate.bind(this)
 
@@ -102,7 +103,7 @@ class ValidInputBase extends Component {
 
     // TODO: verify that only one of onInputChange or onChange is supplied.
 
-    let selectOptions = {}
+    const selectOptions = {}
     if (select) {
       selectOptions.select = true
       selectOptions.children = select.map(option => (
