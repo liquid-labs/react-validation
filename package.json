@@ -38,7 +38,8 @@
     "recompose": "^0.30.0"
   },
   "peerDependencies": {
-    "@material-ui/core": "1.x || 3.x"
+    "@material-ui/core": "1.x || 3.x",
+    "react": "16.x"
   },
   "browserslist": [
     ">0.2%",
