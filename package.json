@@ -1,6 +1,6 @@
 {
   "name": "@liquid-labs/react-validation",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Provides ValidForm and ValidInput components, which add validation to Material UI components.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -29,17 +29,16 @@
   },
   "homepage": "https://github.com/Liquid-Labs/react-validation#readme",
   "devDependencies": {
-    "@liquid-labs/catalyst-scripts": "0.0.6"
-  },
-  "dependencies": {
-    "@liquid-labs/mui-extensions": "0.0.3",
-    "@liquid-labs/validators": "0.0.3",
-    "lodash.camelcase": "^4.3.0",
-    "recompose": "^0.30.0"
+    "@liquid-labs/catalyst-scripts": "0.0.7"
   },
   "peerDependencies": {
+    "@liquid-labs/mui-extensions": "0.0.4",
+    "@liquid-labs/validators": "0.0.3",
     "@material-ui/core": "1.x || 3.x",
-    "react": "16.x"
+    "classnames": "^2.2.6",
+    "lodash.camelcase": "^4.3",
+    "react": "16.x",
+    "recompose": "0.30.0"
   },
   "browserslist": [
     ">0.2%",
