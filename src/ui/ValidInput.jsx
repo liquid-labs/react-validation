@@ -177,16 +177,16 @@ class ValidInputBase extends Component {
 
     const ValidatedTextField =
       <TextField
-        label={label}
-        className={classNames(classes.iconAdornmentFix, className)}
-        {...muiProps}
-        {...conditionalProps}
-        InputProps={InputProps}
-        error={!!error}
-        FormHelperTextProps={{ ...muiProps.FormHelperTextProps, component : 'div' }}
-        helperText={error || helperText || noJump ? <div style={{ height : '1em' }}>{error || helperText}</div> : null}
-        fullWidth={'fullWidth' in muiProps ? muiProps.fullWidth : (!!gridded)}
-        {...selectOptions}
+          label={label}
+          className={classNames(classes.iconAdornmentFix, className)}
+          {...muiProps}
+          {...conditionalProps}
+          InputProps={InputProps}
+          error={!!error}
+          FormHelperTextProps={{ ...muiProps.FormHelperTextProps, component : 'div' }}
+          helperText={error || helperText || noJump ? <div style={{ height : '1em' }}>{error || helperText}</div> : null}
+          fullWidth={'fullWidth' in muiProps ? muiProps.fullWidth : (!!gridded)}
+          {...selectOptions}
       />
 
     if (gridded) {
