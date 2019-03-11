@@ -8,9 +8,9 @@
     "dist/"
   ],
   "scripts": {
-    "build": "catalyst-scripts \"$PWD\" build",
-    "lint": "catalyst-scripts \"$PWD\" lint",
-    "lint-fix": "catalyst-scripts \"$PWD\" lint-fix",
+    "build": "catalyst-scripts build",
+    "lint": "catalyst-scripts lint",
+    "lint-fix": "catalyst-scripts lint-fix",
     "prepare": "npm run build && npm run lint",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/Liquid-Labs/react-validation#readme",
   "devDependencies": {
-    "@liquid-labs/catalyst-scripts": "0.0.7"
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.14"
   },
   "peerDependencies": {
     "@liquid-labs/mui-extensions": "0.0.10",
