@@ -141,6 +141,8 @@ const reducer = (state, action) => {
     const fieldEntry = state.fieldData[fieldName] || fieldEntryTemplate
     const newHistory = processHistoryUpdate(state)
     if (!fieldEntry.touched || newHistory !== state.dataHistory) {
+      // Since the value is not changing here, we can use the current state.
+      settings.updateCallback(exportDataFromState(state))
       return {
         ...state,
         dataHistory : newHistory,
