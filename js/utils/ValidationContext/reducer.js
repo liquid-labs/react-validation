@@ -30,6 +30,8 @@ const fieldEntryTemplate = {
   touched    : false
 }
 
+const objToInputVal = (val) => val === null || val === undefined ? '' : val + ''
+
 /**
  * 'validateFieldsValue' checks the given 'value' against the 'validators' and
  * returns the first error message produced or 'null' no validation failed.
@@ -38,7 +40,7 @@ const validateFieldValue = (value, validators) => {
   // First validator to fail is the one we use.
   let errorMsg = null
   validators.some((validator) => {
-    errorMsg = validator(value)
+    errorMsg = validator(objToInputVal(value))
     return errorMsg
   })
   return errorMsg
@@ -156,16 +158,22 @@ const reducer = (state, action) => {
   }
 
   case actionTypes.UPDATE_FIELD_VALIDATORS : {
-    const { fieldName, validators } = action
-    // These don't generally change, so we don't bother to check if different.
+    const { fieldName, validators=[] } = action
     const fieldEntry = state.fieldData[fieldName] || fieldEntryTemplate
-    return {
-      ...state,
-      fieldData : {
-        ...state.fieldData,
-        [fieldName] : { ...fieldEntry, validators }
+    if (!isEqual(fieldEntry.validators, validators)) {
+      return {
+        ...state,
+        fieldData : {
+          ...state.fieldData,
+          [fieldName] : {
+            ...fieldEntry,
+            errorMsg : validateFieldValue(fieldEntry.value, validators),
+            validators
+          }
+        }
       }
     }
+    else /* no change */ return state
   }
 
   case actionTypes.RESET : return INITIAL_STATE
@@ -173,4 +181,4 @@ const reducer = (state, action) => {
   } // switch (action.type)
 } // reducer
 
-export { exportDataFromState, INITIAL_STATE, reducer, settings }
+export { exportDataFromState, INITIAL_STATE, objToInputVal, reducer, settings }
