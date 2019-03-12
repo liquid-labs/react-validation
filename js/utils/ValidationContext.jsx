@@ -3,9 +3,9 @@ import PropTypes from 'prop-types'
 
 import isEqual from 'lodash.isequal'
 
-const ValidationContext = createContext()
+const VContext = createContext()
 
-const useValidationContextAPI = useContext(ValidationContext)
+const useValidationContextAPI = () => useContext(VContext)
 
 const validateFieldValue = (fieldName, value, validations, setFieldErrorMessage) => {
   if (validations && validations.length > 0) {
@@ -69,21 +69,22 @@ const ValidationContext = ({ origData, currData, updateData, children }) => {
       setAreTouched({})
       setErrorMsgs({})
     }
-  }), [ areTouched, currData, errorMsgs, updateData ])
+  }), [ areTouched, currData, errorMsgs, origData, updateData ])
 
   return (
-    <ValidationContext.Provider value={api}>
+    <VContext.Provider value={api}>
       { children }
-    </ValidationContext.Provider>
+    </VContext.Provider>
   )
 }
 
 if (process.env.NODE_ENV !== 'production') {
   ValidationContext.propTypes = {
-    children   : PropTypes.node.isRequired,
+    children   : PropTypes.oneOfType(
+                  [PropTypes.node, PropTypes.func]).isRequired,
     currData   : PropTypes.object.isRequired,
     origData   : PropTypes.object.isRequired,
-    updateData : PropTypes.func.isREquired,
+    updateData : PropTypes.func.isRequired,
   }
 }
 

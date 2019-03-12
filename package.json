@@ -12,7 +12,8 @@
     "lint": "catalyst-scripts lint",
     "lint-fix": "catalyst-scripts lint-fix",
     "prepare": "npm run build && npm run lint",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pretest": "catalyst-scripts pretest",
+    "test": "catalyst-scripts test"
   },
   "repository": {
     "type": "git",
@@ -36,7 +37,9 @@
     "classnames": "^2.2.6",
     "lodash.camelcase": "^4.3.0",
     "lodash.isequal": "^4.5.0",
-    "react": "^16.8.4"
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "react-testing-library": "^6.0.0"
   },
   "peerDependencies": {
     "@liquid-labs/mui-extensions": "0.0.10",
@@ -45,7 +48,13 @@
     "classnames": "^2.2.6",
     "lodash.camelcase": "^4.3",
     "lodash.isequal": "^4.5.0",
-    "react": "16.x"
+    "react": "^16.8.1",
+    "react-dom": "^16.8.1"
+  },
+  "catalyst": {
+    "jestConfig": {
+      "testEnvironment": "jsdom"
+    }
   },
   "browserslist": [
     ">0.2%",
