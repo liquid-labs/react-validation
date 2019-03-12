@@ -6,6 +6,7 @@ import isEqual from 'lodash.isequal'
 import {
   exportDataFromState,
   INITIAL_STATE,
+  objToInputVal,
   reducer,
   settings } from './ValidationContext/reducer'
 import { actions } from './ValidationContext/actions'
@@ -35,7 +36,7 @@ const ValidationContext = ({
       const fieldEntry = state.fieldData[fieldName]
       // as a UI component tied to 'input' elements, expect empty val as empty
       // string, not null, etc.
-      return fieldEntry && fieldEntry.value || ''
+      return fieldEntry && objToInputVal(fieldEntry.value)
     },
     updateFieldValue : (fieldName, value) =>
       dispatch(actions.updateField(fieldName, value)),
