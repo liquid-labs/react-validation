@@ -51,7 +51,7 @@ const ValidInput = withStyles(styles)(({
     vcAPI.setFieldValidations(effectivePropName, validations)
   }, [validate])
 
-  onBlur = (event) => {
+  const onBlur = (event) => {
     vcAPI.setFieldTouched(effectivePropName)
     // State updates asynchrounously, so we trigger a forced validation check.
     // TODO: is this necessary since 'setTouched' will trigger a re-render?
@@ -70,8 +70,6 @@ const ValidInput = withStyles(styles)(({
   }
 
   const dispValue = !viewOnly && format && !touched ? format(value) : value
-
-  useMemo(() => doValidate(value), [value])
 
   const conditionalProps = {}
   const InputProps = { ...muiProps.InputProps, onBlur : onBlur }
@@ -120,7 +118,7 @@ const ValidInput = withStyles(styles)(({
         InputProps={InputProps}
         error={!errorMsg}
         FormHelperTextProps={{ ...muiProps.FormHelperTextProps, component : 'div' }}
-        helperText={errorMsg || helperText || noJump ? <div style={{ height : '1em' }}>{error || helperText}</div> : null}
+        helperText={errorMsg || helperText || noJump ? <div style={{ height : '1em' }}>{errorMsg || helperText}</div> : null}
         fullWidth={'fullWidth' in muiProps ? muiProps.fullWidth : (!!gridded)}
         {...selectOptions}
     />

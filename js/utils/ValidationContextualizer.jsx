@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useMemo, useState } from 'react'
+import PropTypes from 'prop-types'
 
 import isEqual from 'lodash.isequal'
 
@@ -52,7 +53,7 @@ const ValidationContextualizer = ({ origData, currData, updateData, children }) 
     setFieldValidations : (fieldName, validations) => {
       // We expect the ValidInput and other uses to memo-ize or otherwise be
       // smart about updating validations and don't do additional checks.
-      setFieldValidations(Object.assign({}, validations, { [fieldName] : validations}))
+      setFieldValidations(Object.assign({}, validations, { [fieldName] : validations }))
       validateFieldValue(fieldName, currData[fieldName], validations, setFieldErrorMessage)
     },
 
@@ -75,6 +76,15 @@ const ValidationContextualizer = ({ origData, currData, updateData, children }) 
       { children }
     </ValidationContext.Provider>
   )
+}
+
+if (process.env.NODE_ENV !== 'production') {
+  ValidationContextualizer.propTypes = {
+    children   : PropTypes.node.isRequired,
+    currData   : PropTypes.object.isRequired,
+    origData   : PropTypes.object.isRequired,
+    updateData : PropTypes.func.isREquired,
+  }
 }
 
 export { ValidationContextualizer, useValidationContextAPI }
