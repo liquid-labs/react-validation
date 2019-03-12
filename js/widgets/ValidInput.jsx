@@ -48,7 +48,7 @@ const ValidInput = withStyles(styles)(({
     if (required && !validations.includes(isRequired)) {
       validations.unshift(isRequired)
     }
-    vcAPI.setFieldValidations(effectivePropName, validations)
+    vcAPI.updateFieldValidators(effectivePropName, validations)
   }, [validate])
 
   const onBlur = (event) => {
