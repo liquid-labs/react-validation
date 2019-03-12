@@ -13,7 +13,7 @@ const TestChild = () => {
       <input aria-label="foo" name="foo"
         onChange={(event) => vcAPI.updateFieldValue('foo', event.target.value)}
         onBlur={(event) => { console.log('blurring'); vcAPI.blurField('foo')}}
-        value={vcAPI.getFieldValue('foo')} />
+        value={vcAPI.getFieldInputValue('foo')} />
       <span data-testid="isChanged">{vcAPI.isChanged() + ''}</span>
     </div>
   )

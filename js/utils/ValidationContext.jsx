@@ -30,8 +30,8 @@ const ValidationContext = ({
   const api = useMemo(() => ({
     getOrigData : () => state.origData,
 
-    getData         : () => exportDataFromState(state),
-    getFieldValue   : (fieldName) => {
+    getData            : () => exportDataFromState(state),
+    getFieldInputValue : (fieldName) => {
       const fieldEntry = state.fieldData[fieldName]
       // as a UI component tied to 'input' elements, expect empty val as empty
       // string, not null, etc.
