@@ -61,7 +61,7 @@ const ValidationContext = ({
       return (fieldEntry && fieldEntry.touched && fieldEntry.errorMsg) || null
     },
 
-    reset : () => dispatch(actions.reset())
+    totalReset : () => dispatch(actions.totalReset())
   }), [ state, dispatch ])
 
   return (

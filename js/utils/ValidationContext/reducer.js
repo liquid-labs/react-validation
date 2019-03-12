@@ -176,7 +176,7 @@ const reducer = (state, action) => {
     else /* no change */ return state
   }
 
-  case actionTypes.RESET : return INITIAL_STATE
+  case actionTypes.TOTAL_RESET : return INITIAL_STATE
   default : throw new Error(`Unrecognized action type: '${action.type}'.`)
   } // switch (action.type)
 } // reducer

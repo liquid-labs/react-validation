@@ -3,7 +3,7 @@ const actionTypes = {
   UPDATE_FIELD_VALUE      : 1,
   BLUR_FIELD              : 2,
   UPDATE_FIELD_VALIDATORS : 3,
-  RESET                   : 4,
+  TOTAL_RESET             : 4,
 }
 
 const actions = {
@@ -16,7 +16,7 @@ const actions = {
   updateFieldValidators : (fieldName, validators) =>
     ({ type : actionTypes.UPDATE_FIELD_VALIDATORS, fieldName, validators }),
 
-  reset : () => ({ type : actionTypes.RESET }),
+  totalReset : () => ({ type : actionTypes.TOTAL_RESET }),
 }
 
 export { actions, actionTypes }
