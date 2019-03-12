@@ -31,6 +31,12 @@ const ValidationContext = ({
     getOrigData : () => state.origData,
 
     getData         : () => exportDataFromState(state),
+    getFieldValue   : (fieldName) => {
+      const fieldEntry = state.fieldData[fieldName]
+      // as a UI component tied to 'input' elements, expect empty val as empty
+      // string, not null, etc.
+      return fieldEntry && fieldEntry.value || ''
+    },
     updateFieldValue : (fieldName, value) =>
       dispatch(actions.updateField(fieldName, value)),
 
