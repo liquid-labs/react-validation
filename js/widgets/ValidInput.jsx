@@ -25,15 +25,15 @@ const styles = (theme) => ({
 })
 
 const ValidInput = withStyles(styles)(({
-    label, propName, value,
-    select,
-    required, validate,
-    format, gridded,
-    onChange,
-    helperText,
-    viewOnly, defaultViewValue,
-    noJump, help, className, classes,
-    ...muiProps}) => {
+  label, propName, value,
+  select,
+  required, validate,
+  format, gridded,
+  onChange,
+  helperText,
+  viewOnly, defaultViewValue,
+  noJump, help, className, classes,
+  ...muiProps}) => {
 
   const vcAPI = useValidationContextAPI()
 
@@ -42,8 +42,8 @@ const ValidInput = withStyles(styles)(({
 
   useMemo(() => {
     const validations =
-      validate === undefined ? [] :
-        Array.isArray(validate) ? validate : [ validate ]
+      validate === undefined ? []
+        : Array.isArray(validate) ? validate : [ validate ]
 
     if (required && !validations.includes(isRequired)) {
       validations.unshift(isRequired)
@@ -118,7 +118,7 @@ const ValidInput = withStyles(styles)(({
         {...muiProps}
         {...conditionalProps}
         InputProps={InputProps}
-        error={!Boolean(errorMsg)}
+        error={!errorMsg}
         FormHelperTextProps={{ ...muiProps.FormHelperTextProps, component : 'div' }}
         helperText={errorMsg || helperText || noJump ? <div style={{ height : '1em' }}>{error || helperText}</div> : null}
         fullWidth={'fullWidth' in muiProps ? muiProps.fullWidth : (!!gridded)}

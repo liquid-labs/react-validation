@@ -32,7 +32,7 @@ const ValidationContextualizer = ({ origData, currData, updateData, children }) 
   const api = useMemo(() => ({
     getOrigData : () => origData,
 
-    getData : () => currData,
+    getData         : () => currData,
     updateDataField : (fieldName, value) => {
       if (currData[fieldName] !== value) {
         updateData(Object.assign({}, currData, { [fieldName] : value }))
@@ -42,7 +42,7 @@ const ValidationContextualizer = ({ origData, currData, updateData, children }) 
 
     isChanged : () => !isEqual(origData, currData),
 
-    isFieldTouched : (fieldName) => areTouched[fieldName],
+    isFieldTouched  : (fieldName) => areTouched[fieldName],
     setFieldTouched : (fieldName) => {
       if (!areTouched[fieldName]) {
         setAreTouched(Object.assign({}, areTouched, { [fieldName] : true }))
