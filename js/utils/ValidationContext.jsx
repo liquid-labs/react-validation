@@ -19,7 +19,7 @@ const validateFieldValue = (fieldName, value, validations, setFieldErrorMessage)
   }
 }
 
-const ValidationContextualizer = ({ origData, currData, updateData, children }) => {
+const ValidationContext = ({ origData, currData, updateData, children }) => {
   const [ areTouched, setAreTouched ] = useState({})
   const [ fieldValidations, setFieldValidations ] = useState({})
   const [ errorMsgs, setErrorMsgs ] = useState({})
@@ -79,7 +79,7 @@ const ValidationContextualizer = ({ origData, currData, updateData, children }) 
 }
 
 if (process.env.NODE_ENV !== 'production') {
-  ValidationContextualizer.propTypes = {
+  ValidationContext.propTypes = {
     children   : PropTypes.node.isRequired,
     currData   : PropTypes.object.isRequired,
     origData   : PropTypes.object.isRequired,
@@ -87,4 +87,4 @@ if (process.env.NODE_ENV !== 'production') {
   }
 }
 
-export { ValidationContextualizer, useValidationContextAPI }
+export { ValidationContext, useValidationContextAPI }

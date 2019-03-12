@@ -6,7 +6,7 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import MenuItem from '@material-ui/core/MenuItem'
 import TextField from '@material-ui/core/TextField'
 
-import { useValidationContextAPI } from '../utils/ValidationContextualizer'
+import { useValidationContextAPI } from '../utils/ValidationContext'
 import { withStyles } from '@material-ui/core/styles'
 
 import camelCase from 'lodash.camelcase'
