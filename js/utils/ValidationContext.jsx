@@ -42,6 +42,8 @@ const ValidationContext = ({
       dispatch(actions.updateField(fieldName, value)),
 
     isChanged : () => !isEqual(state.origData, exportDataFromState(state)),
+    isValid   : () =>
+      !Object.values(state.fieldData).some((fieldEntry) => fieldEntry.errorMsg),
 
     isFieldTouched : (fieldName) =>
       state.fieldData[fieldName]

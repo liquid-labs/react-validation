@@ -18,6 +18,7 @@ const TestChild = ({validators}) => {
         onBlur={(event) => vcAPI.blurField('foo')}
         value={vcAPI.getFieldInputValue('foo')} />
       <span data-testid="isChanged">{vcAPI.isChanged() + ''}</span>
+      <span data-testid="isValid">{vcAPI.isValid() + ''}</span>
       <span data-testid="errorMsg">{vcAPI.getFieldErrorMessage('foo') + ''}</span>
     </div>
   )
@@ -78,12 +79,15 @@ describe('ValidationContext', () => {
   test('should not produce errors on invalid, untouched fields', () => {
     const { getByTestId } = stdSetup({ data: { foo: null } }, testValidators)
     expect(getByTestId("errorMsg").textContent).toBe('null')
+    expect(getByTestId("isValid").textContent).toBe('false')
   })
 
   test('should produce errors on invalid field after blur', () => {
-    const { getByLabelText, getByTestId } = stdSetup({ data : { foo: null } }, testValidators)
+    const { getByLabelText, getByTestId } =
+      stdSetup({ data : { foo: null } }, testValidators)
     const input = getByLabelText('foo')
     fireEvent.blur(input)
     expect(getByTestId("errorMsg").textContent).toBe('Required.')
+    expect(getByTestId("isValid").textContent).toBe('false')
   })
 })
