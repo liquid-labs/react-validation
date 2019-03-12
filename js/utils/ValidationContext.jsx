@@ -1,75 +1,59 @@
-import React, { createContext, useContext, useMemo, useState } from 'react'
+import React, { createContext, useContext, useMemo, useReducer } from 'react'
 import PropTypes from 'prop-types'
 
 import isEqual from 'lodash.isequal'
+
+import {
+  exportDataFromState,
+  INITIAL_STATE,
+  reducer,
+  settings } from './ValidationContext/reducer'
+import { actions } from './ValidationContext/actions'
+
+const DEFAULT_HISTORY_LENGTH = 10
 
 const VContext = createContext()
 
 const useValidationContextAPI = () => useContext(VContext)
 
-const validateFieldValue = (fieldName, value, validations, setFieldErrorMessage) => {
-  if (validations && validations.length > 0) {
-    // First validator to fail is the one we use.
-    let errorMsg = null
-    validations.some((validator) => {
-      errorMsg = validator(value)
-      return errorMsg
-    })
-    setFieldErrorMessage(fieldName, errorMsg)
-  }
-}
+const ValidationContext = ({
+  data,
+  updateCallback,
+  historyLength=DEFAULT_HISTORY_LENGTH,
+  children }) => {
+  const [ state, dispatch ] = useReducer(reducer, INITIAL_STATE)
+  settings.historyLength = historyLength
+  settings.updateCallback = updateCallback
 
-const ValidationContext = ({ origData, currData, updateData, children }) => {
-  const [ areTouched, setAreTouched ] = useState({})
-  const [ fieldValidations, setFieldValidations ] = useState({})
-  const [ errorMsgs, setErrorMsgs ] = useState({})
-
-  const setFieldErrorMessage = (fieldName, errorMsg) => {
-    if (errorMsg !== errorMsgs[fieldName]) {
-      setFieldErrorMessage(Object.assign({}, errorMsgs, { [fieldName] : errorMsg }))
-    }
-  }
+  if (state.origData === undefined && data) dispatch(actions.updateData(data))
 
   const api = useMemo(() => ({
-    getOrigData : () => origData,
+    getOrigData : () => state.origData,
 
-    getData         : () => currData,
-    updateDataField : (fieldName, value) => {
-      if (currData[fieldName] !== value) {
-        updateData(Object.assign({}, currData, { [fieldName] : value }))
-        validateFieldValue(fieldName, value, fieldValidations[fieldName], setFieldErrorMessage)
-      }
-    },
+    getData         : () => exportDataFromState(state),
+    updateFieldValue : (fieldName, value) =>
+      dispatch(actions.updateField(fieldName, value)),
 
-    isChanged : () => !isEqual(origData, currData),
+    isChanged : () => !isEqual(state.origData, exportDataFromState(state)),
 
-    isFieldTouched  : (fieldName) => areTouched[fieldName],
-    setFieldTouched : (fieldName) => {
-      if (!areTouched[fieldName]) {
-        setAreTouched(Object.assign({}, areTouched, { [fieldName] : true }))
-      }
-    },
+    isFieldTouched : (fieldName) =>
+      state.fieldData[fieldName]
+        ? state.fieldData[fieldName].touched
+        : undefined,
+    // We avoid 'onBlur' as that implies 'event' as the argument.
+    blurField : (fieldName) => dispatch(actions.blurField(fieldName)),
 
-    setFieldValidations : (fieldName, validations) => {
-      // We expect the ValidInput and other uses to memo-ize or otherwise be
-      // smart about updating validations and don't do additional checks.
-      setFieldValidations(Object.assign({}, validations, { [fieldName] : validations }))
-      validateFieldValue(fieldName, currData[fieldName], validations, setFieldErrorMessage)
-    },
+    updateFieldValidators : (fieldName, validators) =>
+      dispatch(actions.updateFieldValidators(fieldName, validators)),
 
     // Error messages are only returned when the field is touched.
-    getFieldErrorMessage : (fieldName) =>
-      areTouched(fieldName)
-        ? errorMsgs[fieldName]
-        : null,
-    setFieldErrorMessage : (fieldName, errorMsg) =>
-      setFieldErrorMessage(fieldName, errorMsg),
+    getFieldErrorMessage : (fieldName) => {
+      const fieldEntry = state.fieldData[fieldName]
+      return (fieldEntry && fieldEntry.touched && fieldEntry.errorMsg) || null
+    },
 
-    reset : () => {
-      setAreTouched({})
-      setErrorMsgs({})
-    }
-  }), [ areTouched, currData, errorMsgs, origData, updateData ])
+    reset : () => dispatch(actions.reset())
+  }), [ state, dispatch ])
 
   return (
     <VContext.Provider value={api}>
@@ -80,11 +64,11 @@ const ValidationContext = ({ origData, currData, updateData, children }) => {
 
 if (process.env.NODE_ENV !== 'production') {
   ValidationContext.propTypes = {
-    children   : PropTypes.oneOfType(
-                  [PropTypes.node, PropTypes.func]).isRequired,
-    currData   : PropTypes.object.isRequired,
-    origData   : PropTypes.object.isRequired,
-    updateData : PropTypes.func.isRequired,
+    children : PropTypes.oneOfType(
+      [PropTypes.node, PropTypes.func]).isRequired,
+    data           : PropTypes.object.isRequired,
+    historyLength  : PropTypes.number,
+    updateCallback : PropTypes.func.isRequired,
   }
 }
 

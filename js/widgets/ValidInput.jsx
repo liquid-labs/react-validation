@@ -90,7 +90,7 @@ const ValidInput = withStyles(styles)(({
 
     // setup change handlers for non-view only
     const updater = (event) =>
-      vcAPI.updateDataField(effectivePropName, event.target.value)
+      vcAPI.updateFieldValue(effectivePropName, event.target.value)
     if (onChange) {
       conditionalProps.onChange = (event) => {
         updater(event)
