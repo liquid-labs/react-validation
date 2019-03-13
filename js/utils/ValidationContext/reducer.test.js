@@ -1,3 +1,8 @@
+/**
+ * Reducer is primarily excercised through the 'ValidationContext' test. Here
+ * we generally test edge cases, though we also test along the way as we setup
+ * the edge cases.
+ */
 /* global describe expect test */
 import { reducer, INITIAL_STATE } from './reducer'
 import { actions } from './actions'
@@ -32,6 +37,10 @@ describe('ValidationContext/reducer', () => {
       })
     })
 
+    // This situation is (at the time of writing) checked at the
+    // ValidationContext level, so we shouldn't see such a dispatch. But, to
+    // be robust (and get that coverage), we test the reducer behavior
+    // directly as well.
     describe(`after update with equivalent validators`, () => {
       let postUpdateState
       beforeAll(() => {
@@ -66,6 +75,10 @@ describe('ValidationContext/reducer', () => {
         expect(postBlurState).toHaveProperty('fieldData.foo.blurredAfterChange', true)
       })
 
+      // This situation is (at the time of writing) checked at the
+      // ValidationContext level, so we shouldn't see such a dispatch. But, to
+      // be robust (and get that coverage), we test the reducer behavior
+      // directly as well.
       describe(`after a second blur`, () => {
         let postBlurStateB
         beforeAll(() => {
