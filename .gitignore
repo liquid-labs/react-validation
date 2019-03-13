@@ -2,3 +2,5 @@
 /dist/
 /test-staging/
 /coverage/
+/.yalc
+/yalc.lock
