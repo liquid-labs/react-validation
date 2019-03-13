@@ -31,7 +31,8 @@ const testValidators = [
   (value) => value === 'bar' ? "No bar!" : null,
 ]
 
-const stdSetup = (validators=undefined, origData={ foo : 'foo', bar : 'bar' }) => {
+const stdSetup = ({origData, validators, ...props}) => {
+  origData = origData || { foo: 'foo', bar: 'bar' }
   const warningSpy = jest.spyOn(console, 'warn').mockImplementation()
   // Even though 'warningSpy' is new, jest appareantly reconizes the previous
   // mock and preseves it, so we have to clear it.
@@ -43,7 +44,7 @@ const stdSetup = (validators=undefined, origData={ foo : 'foo', bar : 'bar' }) =
     dataEnvelope.data = newData
   })
   const renderAPI = render(
-    <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback}>
+    <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback} {...props}>
       <TestChild validators={validators} />
     </ValidationContext>
   )
@@ -71,7 +72,7 @@ describe('ValidationContext', () => {
       beforeAll(() => {
         ({ dataEnvelope, fooInput, warningSpy,
           getByTestId, getByLabelText,
-          origData, updateCallback } = stdSetup(validators))
+          origData, updateCallback } = stdSetup({validators}))
       })
 
       afterAll(cleanup)
@@ -142,7 +143,7 @@ describe('ValidationContext', () => {
         beforeAll(() => {
           ({ dataEnvelope, fooInput, warningSpy,
             getByTestId, getByLabelText,
-            origData, updateCallback } = stdSetup(validators))
+            origData, updateCallback } = stdSetup({validators}))
 
           fireEvent.change(fooInput, { target : { value : 'foo2' } })
           fireEvent.change(fooInput, { target : { value : 'foo' } })
@@ -164,7 +165,40 @@ describe('ValidationContext', () => {
         })
       })
 
-      describe('after external data change', () => {
+      describe('after external data change with default settings', () => {
+        let fooInput, dataEnvelope, updateCallback,
+          getByLabelText, getByTestId, rerender
+
+        beforeAll(() => {
+          ({ fooInput, dataEnvelope, updateCallback,
+            getByLabelText, getByTestId, rerender }
+            = stdSetup({validators}))
+          dataEnvelope.data = { foo: 'foo3'}
+          rerender(
+            <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback}>
+              <TestChild validators={validators} />
+            </ValidationContext>
+          )
+        })
+
+        afterAll(cleanup)
+
+        test("will reflect change", () => {
+          expect(fooInput.value).toBe('foo3')
+        })
+
+        test("will reset history", () => {
+          expect(getByTestId('undoCount').textContent).toBe('0')
+          expect(getByTestId('redoCount').textContent).toBe('0')
+        })
+
+        test(`should trigger reset warning`, () => {
+          expect(warningSpy).toHaveBeenCalledTimes(1)
+          expect(warningSpy).toHaveBeenCalledWith(`Programatic update of data detected. Form history will be reset.`)
+        })
+      })
+/*
+      describe("after external data change with 'noHistotry={true}'", () => {
         let fooInput, dataEnvelope, updateCallback,
           getByLabelText, getByTestId, rerender
 
@@ -195,7 +229,7 @@ describe('ValidationContext', () => {
           expect(warningSpy).toHaveBeenCalledTimes(1)
           expect(warningSpy).toHaveBeenCalledWith(`Programatic update of data detected. Form history will be reset.`)
         })
-      })
+      })*/
     }) // validators variation describe
   }) // validators variation loop
 
@@ -203,7 +237,7 @@ describe('ValidationContext', () => {
     let fooInput, getByTestId, warningSpy
     beforeAll(() => {
       ({ fooInput, getByTestId, warningSpy }
-        = stdSetup(testValidators, { foo: null }))
+        = stdSetup({ validators: testValidators, origData: { foo: null } }))
     })
 
     test('should not produce errors on invalid, untouched fields', () => {
@@ -234,11 +268,6 @@ describe('ValidationContext', () => {
   })
 }) // describe('Validators', ...)
 /*
-
-  test("external data updates produce no warning when history disabled ('noHistory={true}')", () => {
-    throw('implement me')
-  })
-
   test("external data updates paired 'resetHistory={true}' produce no warning and resets the history", () => {
     throw('implement me')
   })*/
