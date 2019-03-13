@@ -8,9 +8,10 @@ const settings = {
 }
 
 const INITIAL_STATE = {
-  origData    : undefined,
-  dataHistory : [],
-  fieldData   : { /*
+  origData     : undefined,
+  dataHistory  : [],
+  historyIndex : 0,
+  fieldData    : { /*
     fieldName : {
       value: <some primitive value>,
       validators: [ array of validator functions ]
@@ -18,7 +19,7 @@ const INITIAL_STATE = {
       touched: false | true
     } */
   },
-  lastUpdate  : null
+  lastUpdate   : null
 }
 
 /**
@@ -107,9 +108,11 @@ const reducer = (state, action) => {
     const { data } = action
     return {
       ...state,
-      origData   : state.origData || data,
-      fieldData  : processDataUpdate(data),
-      lastUpdate : data
+      origData     : data,
+      dataHistory  : [ data ],
+      historyIndex : 0,
+      fieldData    : processDataUpdate(data),
+      lastUpdate   : data
     }
   }
 
@@ -148,8 +151,7 @@ const reducer = (state, action) => {
         fieldData   : {
           ...state.fieldData,
           [fieldName] : { ...fieldEntry, touched : true }
-        },
-        lastUpdate : updatedData
+        }
       }
     }
     else /* field already touched, no change in history */ return state

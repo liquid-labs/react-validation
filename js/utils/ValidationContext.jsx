@@ -28,6 +28,9 @@ const ValidationContext = ({
   if ((state.origData === undefined && data)
       || (state.lastUpdate !== data
           && !isEqual(state.lastUpdate, data))) {
+    if (state.origData !== undefined) {
+      console.warn(`Programatic update of data detected. Form history will be reset.`)
+    }
     dispatch(actions.updateData(data))
   }
 
@@ -63,6 +66,9 @@ const ValidationContext = ({
       const fieldEntry = state.fieldData[fieldName]
       return (fieldEntry && fieldEntry.touched && fieldEntry.errorMsg) || null
     },
+
+    getUndoCount : () => state.historyIndex,
+    getRedoCount : () => state.dataHistory.length - state.historyIndex - 1,
 
     totalReset : () => dispatch(actions.totalReset())
   }), [ state, dispatch ])
