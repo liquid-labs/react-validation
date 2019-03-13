@@ -17,7 +17,8 @@ const INITIAL_STATE = {
       errorMsg : <current error message string> | null,
       touched: false | true
     } */
-  }
+  },
+  lastUpdate  : null
 }
 
 /**
@@ -104,16 +105,11 @@ const reducer = (state, action) => {
   switch (action.type) {
   case actionTypes.UPDATE_DATA : {
     const { data } = action
-    if (process.env.NODE_ENV !== 'production') {
-      if (state.origData !== undefined) {
-        // eslint-disable-next-line no-console
-        console.warn(`Updating the validation data directly causes the data history to be reset. To avoid this warning, call 'reset()' explicitly before updatin the data.`)
-      }
-    }
     return {
-      origData    : data,
-      dataHistory : [ data ],
-      fieldData   : processDataUpdate(data)
+      ...state,
+      origData   : state.origData || data,
+      fieldData  : processDataUpdate(data),
+      lastUpdate : data
     }
   }
 
@@ -144,14 +140,16 @@ const reducer = (state, action) => {
     const newHistory = processHistoryUpdate(state)
     if (!fieldEntry.touched || newHistory !== state.dataHistory) {
       // Since the value is not changing here, we can use the current state.
-      settings.updateCallback(exportDataFromState(state))
+      const updatedData = exportDataFromState(state)
+      settings.updateCallback(updatedData)
       return {
         ...state,
         dataHistory : newHistory,
         fieldData   : {
           ...state.fieldData,
           [fieldName] : { ...fieldEntry, touched : true }
-        }
+        },
+        lastUpdate : updatedData
       }
     }
     else /* field already touched, no change in history */ return state

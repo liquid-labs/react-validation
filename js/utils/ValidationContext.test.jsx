@@ -1,9 +1,9 @@
 /* global afterEach describe expect test */
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { ValidationContext, useValidationContextAPI } from './ValidationContext'
 
-import { cleanup, fireEvent, render } from 'react-testing-library'
+import { act, cleanup, fireEvent, render } from 'react-testing-library'
 import isEqual from 'lodash.isequal'
 
 const TestChild = ({validators}) => {
@@ -37,9 +37,10 @@ const stdSetup = (dataEnvelope, validators=undefined) => {
   return {
     ...render(
       <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback}>
-        <TestChild validators={validators}/>
+        <TestChild validators={validators} />
       </ValidationContext>
     ),
+    updateCallback,
     origData,
   }
 }
@@ -76,6 +77,10 @@ describe('ValidationContext', () => {
     expect(dataEnvelope.data.foo).toBe('foo2')
   })
 
+  test('should not invorke callback on no-change edits', () => {
+    throw('implement me')
+  })
+
   test('should not produce errors on invalid, untouched fields', () => {
     const { getByTestId } = stdSetup({ data: { foo: null } }, testValidators)
     expect(getByTestId("errorMsg").textContent).toBe('null')
@@ -90,4 +95,32 @@ describe('ValidationContext', () => {
     expect(getByTestId("errorMsg").textContent).toBe('Required.')
     expect(getByTestId("isValid").textContent).toBe('false')
   })
+
+  test('will reload new data as original after total reset', () => {
+    // TODO: could this test be cleaner?
+    const dataEnvelope = {}
+    const { getByLabelText, rerender, updateCallback } = stdSetup(dataEnvelope)
+    dataEnvelope.data = { foo: 'foo3'}
+    rerender(
+      <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback}>
+        <TestChild />
+      </ValidationContext>
+    )
+    const input = getByLabelText('foo')
+    expect(input.value).toBe('foo3')
+  })
+
+  test("external data updates reset history and trigger warning when 'noHistory' is 'false' (default)", () => {
+    throw('implement me')
+  })
+
+  test("external data updates produce no warning when history disabled ('noHistory={true}')", () => {
+    throw('implement me')
+  })
+
+  test("external data updates paired 'resetHistory={true}' produce no warning and resets the history", () => {
+    throw('implement me')
+  })
+
+  // test 'resetToOriginalData', 'undoCount', 'redoCount', 'undo(n)', 'redo(n)', 'historyPosition', reset of forward history after update, and no reset after non-change change (edit, and then edit back without blur)
 })

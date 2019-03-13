@@ -25,8 +25,11 @@ const ValidationContext = ({
   const [ state, dispatch ] = useReducer(reducer, INITIAL_STATE)
   settings.historyLength = historyLength
   settings.updateCallback = updateCallback
-
-  if (state.origData === undefined && data) dispatch(actions.updateData(data))
+  if ((state.origData === undefined && data)
+      || (state.lastUpdate !== data
+          && !isEqual(state.lastUpdate, data))) {
+    dispatch(actions.updateData(data))
+  }
 
   const api = useMemo(() => ({
     getOrigData : () => state.origData,
@@ -36,7 +39,7 @@ const ValidationContext = ({
       const fieldEntry = state.fieldData[fieldName]
       // as a UI component tied to 'input' elements, expect empty val as empty
       // string, not null, etc.
-      return fieldEntry && objToInputVal(fieldEntry.value)
+      return (fieldEntry && objToInputVal(fieldEntry.value)) || ''
     },
     updateFieldValue : (fieldName, value) =>
       dispatch(actions.updateField(fieldName, value)),
