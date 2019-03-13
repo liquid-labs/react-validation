@@ -98,16 +98,24 @@ const processHistoryUpdate = (state) => {
 
 const reducer = (state, action) => {
   switch (action.type) {
-  case actionTypes.UPDATE_DATA : {
-    const { data } = action
-    return {
+  case actionTypes.UPDATE_DATA :
+  case actionTypes.RESET_DATA : {
+    const data = action.data || state.origData
+    const newState = {
       ...state,
       origData     : data,
-      dataHistory  : settings.historyLength > 0 ? [ data ] : undefined,
       historyIndex : 0,
       fieldData    : processDataUpdate(data),
       lastUpdate   : data
     }
+    const dataHistory =
+      settings.historyLength <= 0
+        ? undefined
+        : action.type === actionTypes.RESET_DATA
+          ? processHistoryUpdate(newState)
+          : [ data ]
+    newState.dataHistory = dataHistory
+    return newState
   }
 
   case actionTypes.UPDATE_FIELD_VALUE : {

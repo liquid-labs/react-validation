@@ -17,6 +17,7 @@ const TestChild = ({validators}) => {
         onChange={(event) => vcAPI.updateFieldValue('foo', event.target.value)}
         onBlur={(event) => vcAPI.blurField('foo')}
         value={vcAPI.getFieldInputValue('foo')} />
+      <button aria-label="resetButton" onClick={() => vcAPI.resetData() }>reset button</button>
       <span data-testid="isChanged">{vcAPI.isChanged() + ''}</span>
       <span data-testid="isValid">{vcAPI.isValid() + ''}</span>
       <span data-testid="errorMsg">{vcAPI.getFieldErrorMessage('foo') + ''}</span>
@@ -261,6 +262,29 @@ describe('ValidationContext', () => {
           expect(warningSpy).toHaveBeenCalledTimes(0)
         })
       })
+
+      describe("with reset to original data", () => {
+        let fooInput, dataEnvelope, updateCallback,
+          getByLabelText, getByTestId, rerender
+
+        beforeAll(() => {
+          ({ fooInput, dataEnvelope, updateCallback,
+            getByLabelText, getByTestId, rerender }
+            = stdSetup({validators}))
+          fireEvent.change(fooInput, { target : { value : 'foo2' } })
+          fireEvent.blur(fooInput)
+          const resetButton = getByLabelText('resetButton')
+          fireEvent.click(resetButton)
+        })
+
+        test(`should display original values`, () => {
+          expect(fooInput.value).toBe('foo')
+        })
+
+        test(`should not have triggered warnings`, () => {
+          expect(warningSpy).toHaveBeenCalledTimes(0)
+        })
+      })
     }) // validators variation describe
   }) // validators variation loop
 
@@ -299,4 +323,4 @@ describe('ValidationContext', () => {
   })
 }) // describe('Validators', ...)
 
-  // test 'resetToOriginalData', 'undoCount', 'redoCount', 'undo(n)', 'redo(n)', 'historyPosition', reset of forward history after update, and no reset after non-change change (edit, and then edit back without blur)
+  // 'undoCount', 'redoCount', 'undo(n)', 'redo(n)', 'historyPosition', reset of forward history after update, and no reset after non-change change (edit, and then edit back without blur)

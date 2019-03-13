@@ -94,6 +94,8 @@ const ValidationContext = ({
       ? state.dataHistory.length - state.historyIndex - 1
       : null,
 
+    resetData : () => dispatch(actions.resetData()),
+
     totalReset : () => dispatch(actions.totalReset())
   }), [ state, dispatch, historyLength ])
 
