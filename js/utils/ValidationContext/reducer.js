@@ -8,7 +8,7 @@ const settings = {
 
 const INITIAL_STATE = {
   origData     : undefined,
-  dataHistory  : [], // set to 'undefined' when 'historyLength <= 0'
+  dataHistory  : [],
   historyIndex : 0,
   fieldData    : { /*
     fieldName : {
@@ -68,8 +68,7 @@ const exportDataFromState = (state) => Object.entries(state.fieldData)
  */
 const processHistoryUpdate = (state) => {
   const { dataHistory } = state
-  if (dataHistory === undefined) return dataHistory
-  else if (settings.historyLength > 0) {
+  if (settings.historyLength > 0) {
     if (dataHistory.length === 0) return [ exportDataFromState(state) ]
     // else
     const currData = exportDataFromState(state)
@@ -96,7 +95,7 @@ const reducer = (state, action) => {
     let data = action.data || state.origData
     let newHistoryIndex = 0 // for update
     if (action.type === actionTypes.OFFSET_DATA) {
-      if (!state.dataHistory) {
+      if (settings.historyLength <= 0) {
         throw new Error(`Cannot offset data with no history.`)
       }
 
@@ -122,15 +121,17 @@ const reducer = (state, action) => {
       lastUpdate   : action.type === actionTypes.UPDATE_DATA ? data : state.lastUpdate
     }
     const dataHistory =
-      action.type === actionTypes.OFFSET_DATA
-        ? state.dataHistory // then no change
-        : settings.historyLength <= 0
-          ? undefined
+      settings.historyLength <= 0
+        ? 0
+        : action.type === actionTypes.OFFSET_DATA
+          ? state.dataHistory // then no change
           : action.type === actionTypes.RESET_DATA
             ? processHistoryUpdate(newState)
-            : [ data ]
+            : [ data ] // then it's 'UPDATE_DATA'
     newState.dataHistory = dataHistory
-    if (action.type === actionTypes.RESET_DATA && newState.dataHistory) {
+    if (action.type === actionTypes.RESET_DATA
+        && newState.dataHistory
+        && settings.historyLength >= 0) {
       newState.historyIndex = newState.dataHistory.length - 1
     }
     return newState
@@ -169,7 +170,7 @@ const reducer = (state, action) => {
       return {
         ...state,
         dataHistory : newHistory,
-        historyIndex : (newHistory && newHistory.length - 1) || 0,
+        historyIndex : (newHistory.length > 0 && newHistory.length - 1) || 0,
         fieldData   : {
           ...state.fieldData,
           [fieldName] : { ...fieldEntry, touched : true, blurredAfterChange: true }
