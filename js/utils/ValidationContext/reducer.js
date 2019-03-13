@@ -9,14 +9,15 @@ const settings = {
 
 const INITIAL_STATE = {
   origData     : undefined,
-  dataHistory  : [],
+  dataHistory  : [], // set to 'undefined' when 'historyLength <= 0'
   historyIndex : 0,
   fieldData    : { /*
     fieldName : {
       value: <some primitive value>,
       validators: [ array of validator functions ]
       errorMsg : <current error message string> | null,
-      touched: false | true
+      touched: false | true,
+      blurredAfterChange: false | true,
     } */
   },
   lastUpdate   : null
@@ -29,7 +30,8 @@ const fieldEntryTemplate = {
   value      : undefined,
   validators : [],
   errorMsg   : null,
-  touched    : false
+  touched    : false,
+  blurredAfterChange : true,
 }
 
 const objToInputVal = (val) => val === null || val === undefined ? '' : val + ''
@@ -68,17 +70,6 @@ const processDataUpdate = (data) =>
   }, {})
 
 /**
- * 'processFieldUpdate' updates the value and error message for a field entry.
- * Note that for efficiency, the current value of the field entry should be
- * checked to see if processing is needed prior to invoking this method.
- */
-const processFieldUpdate = (fieldEntry, value) => ({
-  ...fieldEntry,
-  errorMsg : validateFieldValue(value, fieldEntry.validators),
-  value    : value
-})
-
-/**
  * 'processHistoryUpdate' potentialy generates a new 'dataHistory' to capture
  * the current state of the data. If the current data is equivalent to the most
  * recent history state, then the current 'state.dataHistory' is returned.
@@ -87,19 +78,22 @@ const processFieldUpdate = (fieldEntry, value) => ({
  */
 const processHistoryUpdate = (state) => {
   const { dataHistory } = state
-  if (dataHistory.length === 0) return [ exportDataFromState(state) ]
-  // else
-  const currData = exportDataFromState(state)
-  if (isEqual(dataHistory[dataHistory.length - 1], currData)) {
-    return dataHistory
+  if (settings.historyLength > 0) {
+    if (dataHistory.length === 0) return [ exportDataFromState(state) ]
+    // else
+    const currData = exportDataFromState(state)
+    if (isEqual(dataHistory[dataHistory.length - 1], currData)) {
+      return dataHistory
+    }
+    else {
+      // We use 'concat' to create a new array.
+      const newHistory = dataHistory.concat([ currData ])
+      // Should never need to shift more than one, but...
+      while (newHistory.length > settings.historyLength) newHistory.shift()
+      return newHistory
+    }
   }
-  else {
-    // We use 'concat' to create a new array.
-    const newHistory = dataHistory.concat([ currData ])
-    // Should never need to shift more than one, but...
-    while (newHistory.length > settings.historyLength) newHistory.shift()
-    return newHistory
-  }
+  else return dataHistory
 }
 
 const reducer = (state, action) => {
@@ -109,7 +103,7 @@ const reducer = (state, action) => {
     return {
       ...state,
       origData     : data,
-      dataHistory  : [ data ],
+      dataHistory  : settings.historyLength > 0 ? [ data ] : undefined,
       historyIndex : 0,
       fieldData    : processDataUpdate(data),
       lastUpdate   : data
@@ -128,8 +122,10 @@ const reducer = (state, action) => {
         fieldData : {
           ...state.fieldData,
           [fieldName] : {
-            ...
-            processFieldUpdate(fieldEntry, value)
+            ...fieldEntry,
+            errorMsg : validateFieldValue(value, fieldEntry.validators),
+            value    : value,
+            blurredAfterChange : false
           }
         }
       }
@@ -150,7 +146,7 @@ const reducer = (state, action) => {
         dataHistory : newHistory,
         fieldData   : {
           ...state.fieldData,
-          [fieldName] : { ...fieldEntry, touched : true }
+          [fieldName] : { ...fieldEntry, touched : true, blurredAfterChange: true }
         }
       }
     }
@@ -174,6 +170,20 @@ const reducer = (state, action) => {
       }
     }
     else /* no change */ return state
+  }
+
+  case actionTypes.RESET_HISTORY : {
+    if (settings.historyLength > 0) {
+      if (state.dataHistory) {
+        if (state.dataHistory.length === 1) return state
+        else return { ...state, dataHistory : [ state.dataHistory.pop() ] }
+      }
+      else return { ...state, dataHistory : [] }
+    }
+    else {
+      if (state.dataHistotry === undefined) return state
+      else return { ...state, dataHistory : undefined }
+    }
   }
 
   case actionTypes.TOTAL_RESET : return INITIAL_STATE

@@ -197,18 +197,50 @@ describe('ValidationContext', () => {
           expect(warningSpy).toHaveBeenCalledWith(`Programatic update of data detected. Form history will be reset.`)
         })
       })
-/*
-      describe("after external data change with 'noHistotry={true}'", () => {
+
+      describe("after external data change with 'historyLength={0}'", () => {
         let fooInput, dataEnvelope, updateCallback,
           getByLabelText, getByTestId, rerender
 
         beforeAll(() => {
           ({ fooInput, dataEnvelope, updateCallback,
             getByLabelText, getByTestId, rerender }
-            = stdSetup(validators))
+            = stdSetup({validators, historyLength: 0}))
           dataEnvelope.data = { foo: 'foo3'}
           rerender(
-            <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback}>
+            <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback} historyLength={0}>
+              <TestChild validators={validators} />
+            </ValidationContext>
+          )
+        })
+
+        afterAll(cleanup)
+
+        test("will reflect change", () => {
+          expect(fooInput.value).toBe('foo3')
+        })
+
+        test("will have no history", () => {
+          expect(getByTestId('undoCount').textContent).toBe('null')
+          expect(getByTestId('redoCount').textContent).toBe('null')
+        })
+
+        test(`should not have triggered warnings`, () => {
+          expect(warningSpy).toHaveBeenCalledTimes(0)
+        })
+      })
+
+      describe("after external data change with 'resetHistory'", () => {
+        let fooInput, dataEnvelope, updateCallback,
+          getByLabelText, getByTestId, rerender
+
+        beforeAll(() => {
+          ({ fooInput, dataEnvelope, updateCallback,
+            getByLabelText, getByTestId, rerender }
+            = stdSetup({validators}))
+          dataEnvelope.data = { foo: 'foo3'}
+          rerender(
+            <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback} resetHistory>
               <TestChild validators={validators} />
             </ValidationContext>
           )
@@ -225,11 +257,10 @@ describe('ValidationContext', () => {
           expect(getByTestId('redoCount').textContent).toBe('0')
         })
 
-        test(`should trigger reset warning`, () => {
-          expect(warningSpy).toHaveBeenCalledTimes(1)
-          expect(warningSpy).toHaveBeenCalledWith(`Programatic update of data detected. Form history will be reset.`)
+        test(`should not have triggered warnings`, () => {
+          expect(warningSpy).toHaveBeenCalledTimes(0)
         })
-      })*/
+      })
     }) // validators variation describe
   }) // validators variation loop
 
@@ -267,9 +298,5 @@ describe('ValidationContext', () => {
     })
   })
 }) // describe('Validators', ...)
-/*
-  test("external data updates paired 'resetHistory={true}' produce no warning and resets the history", () => {
-    throw('implement me')
-  })*/
 
   // test 'resetToOriginalData', 'undoCount', 'redoCount', 'undo(n)', 'redo(n)', 'historyPosition', reset of forward history after update, and no reset after non-change change (edit, and then edit back without blur)
