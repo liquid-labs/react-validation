@@ -24,7 +24,9 @@ const actions = {
   resetData : () => ({ type: actionTypes.RESET_DATA }),
   resetHistory : () => ({ type: actionTypes.RESET_HISTORY }),
 
-  totalReset : () => ({ type : actionTypes.TOTAL_RESET }),
+  // TODO: in previous implementation, we used something like this, but now I'm
+  // thinking it's superfluous
+  // totalReset : () => ({ type : actionTypes.TOTAL_RESET }),
 }
 
 export { actions, actionTypes }

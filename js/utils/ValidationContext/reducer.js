@@ -163,8 +163,8 @@ const reducer = (state, action) => {
   case actionTypes.BLUR_FIELD : {
     const { fieldName } = action
     const fieldEntry = state.fieldData[fieldName] || fieldEntryTemplate
-    const newHistory = processHistoryUpdate(state)
-    if (!fieldEntry.touched || newHistory !== state.dataHistory) {
+    if (!fieldEntry.touched || !fieldEntry.blurredAfterChange) {
+      const newHistory = processHistoryUpdate(state)
       // Since the value is not changing here, we can use the current state.
       const updatedData = exportDataFromState(state)
       return {
@@ -201,16 +201,14 @@ const reducer = (state, action) => {
 
   case actionTypes.RESET_HISTORY : {
     if (settings.historyLength > 0) {
-      if (state.dataHistory) {
-        if (state.dataHistory.length === 1) return state
-        else return { ...state, dataHistory : [ state.dataHistory.pop() ] }
-      }
-      else return { ...state, dataHistory : [] }
+      if (state.dataHistory.length === 1) return state
+      else return { ...state, dataHistory : [ state.dataHistory.pop() ] }
     }
     else return state
   }
 
-  case actionTypes.TOTAL_RESET : return INITIAL_STATE
+  // see note on 'totalReset' in acitons.js
+  // case actionTypes.TOTAL_RESET : return INITIAL_STATE
   default : throw new Error(`Unrecognized action type: '${action.type}'.`)
   } // switch (action.type)
 } // reducer
