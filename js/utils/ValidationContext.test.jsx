@@ -29,72 +29,158 @@ const testValidators = [
   (value) => value === 'bar' ? "No bar!" : null,
 ]
 
-const stdSetup = (dataEnvelope, validators=undefined) => {
-  const origData = dataEnvelope.data || { foo : 'foo', bar : 'bar' }
+const stdSetup = (validators=undefined, origData={ foo : 'foo', bar : 'bar' }) => {
+  const dataEnvelope = {}
   dataEnvelope.data = Object.assign({}, origData)
-  const updateCallback = (newData) => dataEnvelope.data = newData
+  const updateCallback = jest.fn((newData) => {
+    dataEnvelope.data = newData
+  })
+  const renderAPI = render(
+    <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback}>
+      <TestChild validators={validators} />
+    </ValidationContext>
+  )
+
+  const fooInput = renderAPI.getByLabelText('foo')
 
   return {
-    ...render(
-      <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback}>
-        <TestChild validators={validators} />
-      </ValidationContext>
-    ),
-    updateCallback,
+    dataEnvelope,
+    fooInput,
     origData,
+    updateCallback,
+    ...renderAPI,
   }
 }
 
 describe('ValidationContext', () => {
-  afterEach(cleanup)
+  [['with no initial validators', undefined],
+   ['with initial validators', testValidators]].forEach(([desc, validators]) => {
+    describe(desc, () => {
+      let dataEnvelope, fooInput,
+        getByTestId, getByLabelText,
+        origData, updateCallback;
 
-  test('should initially be unchanged', () => {
-    const { getByTestId } = stdSetup({})
-    expect(getByTestId("isChanged").textContent).toBe('false')
-  })
+      beforeAll(() => {
+        ({ dataEnvelope, fooInput,
+          getByTestId, getByLabelText,
+          origData, updateCallback } = stdSetup(validators))
+      })
 
-  test('should recognize changed data', () => {
-    const { getByLabelText, getByTestId } = stdSetup({})
-    const input = getByLabelText('foo')
-    fireEvent.change(input, { target : { value : 'foo2' } })
-    expect(getByTestId("isChanged").textContent).toBe('true')
-    expect(input.value).toBe('foo2') // sanity check
-  })
+      afterAll(cleanup)
 
-  test('should not invoke callback until field blurred', () => {
-    const dataEnvelope = {}
-    const { origData } = stdSetup(dataEnvelope)
-    expect(isEqual(origData, dataEnvelope.data)).toBe(true)
-  })
+      describe('should initially', () =>{
+        test('be unchaned', () => {
+          expect(getByTestId("isChanged").textContent).toBe('false')
+        })
 
-  test('should invoke update callback on blur', () => {
-    const dataEnvelope = {}
-    const { origData, getByLabelText } = stdSetup(dataEnvelope)
-    const input = getByLabelText('foo')
-    fireEvent.change(input, { target : { value : 'foo2' } })
-    fireEvent.blur(input)
-    expect(isEqual(origData, dataEnvelope.data)).toBe(false)
-    expect(dataEnvelope.data.foo).toBe('foo2')
-  })
+        test('not call the update callback', () => {
+          expect(updateCallback).toHaveBeenCalledTimes(0)
+        })
+      })
 
-  test('should not invorke callback on no-change edits', () => {
-    throw('implement me')
-  })
+      describe('on field change', () => {
+        beforeAll(() =>
+          fireEvent.change(fooInput, { target : { value : 'foo2' } }))
 
-  test('should not produce errors on invalid, untouched fields', () => {
-    const { getByTestId } = stdSetup({ data: { foo: null } }, testValidators)
-    expect(getByTestId("errorMsg").textContent).toBe('null')
-    expect(getByTestId("isValid").textContent).toBe('false')
-  })
+        test("should indicate 'isChanged'", () => {
+          expect(getByTestId("isChanged").textContent).toBe('true')
+        })
 
-  test('should produce errors on invalid field after blur', () => {
-    const { getByLabelText, getByTestId } =
-      stdSetup({ data : { foo: null } }, testValidators)
-    const input = getByLabelText('foo')
-    fireEvent.blur(input)
-    expect(getByTestId("errorMsg").textContent).toBe('Required.')
-    expect(getByTestId("isValid").textContent).toBe('false')
+        test("reflect change to input", () => {
+          expect(fooInput.value).toBe('foo2')
+        })
+
+        test("should not invoke 'updateCallback'", () => {
+          expect(updateCallback).toHaveBeenCalledTimes(0)
+        })
+
+        test("should not change the 'origData'", () => {
+          expect(isEqual(origData, dataEnvelope.data)).toBe(true)
+        })
+
+        describe('after blur', () => {
+          beforeAll(() => {
+            fireEvent.blur(fooInput)}
+          )
+
+          test('should invoke update callback', () => {
+            expect(updateCallback).toHaveBeenCalledTimes(1)
+          })
+
+          test("we double check the tests setup works like expected and 'dataEnvelope.data' is updated", () => {
+            expect(origData).not.toBe(dataEnvelope.data)
+          })
+
+          test("we double check the tests setup works like expected and 'dataEnvelope' is a different object", () => {
+            // This is important in the react context. We want to make sure we're using new objects.
+            expect(origData).not.toEqual(dataEnvelope.data)
+          })
+
+          test("should not effect the field input value", () => {
+            expect(dataEnvelope.data.foo).toBe('foo2')
+          })
+        })
+      })
+
+      describe('after no-change edit and blur', () => {
+        let dataEnvelope, fooInput,
+          getByTestId, getByLabelText,
+          origData, updateCallback
+
+        beforeAll(() => {
+          ({ dataEnvelope, fooInput,
+            getByTestId, getByLabelText,
+            origData, updateCallback } = stdSetup(validators))
+
+          fireEvent.change(fooInput, { target : { value : 'foo2' } })
+          fireEvent.change(fooInput, { target : { value : 'foo' } })
+          fireEvent.blur(fooInput)
+        })
+
+        afterAll(cleanup)
+
+        test("should not invoke callback", () => {
+          expect(updateCallback).toHaveBeenCalledTimes(0)
+        })
+
+        test("'origData' should equal local reference", () => {
+          expect(origData).toEqual(dataEnvelope.data)
+        })
+      })
+    }) // validators variation describe
+  }) // validators variation loop
+
+  describe("with initially invalid fields", () => {
+    let fooInput, getByTestId;
+    beforeAll(() => {
+      ({ fooInput, getByTestId } = stdSetup(testValidators, { foo: null }))
+    })
+
+    test('should not produce errors on invalid, untouched fields', () => {
+      expect(getByTestId("errorMsg").textContent).toBe('null')
+    })
+
+    test('should be invalid', () => {
+      expect(getByTestId("isValid").textContent).toBe('false')
+    })
+
+    describe("after blur", () => {
+      beforeAll(() => {
+        fireEvent.blur(fooInput)
+      })
+
+      test('should produce errors', () => {
+        expect(getByTestId("errorMsg").textContent).toBe('Required.')
+      })
+
+      test('be invalid', () => {
+        expect(getByTestId("isValid").textContent).toBe('false')
+      })
+    })
   })
+}) // describe('Validators', ...)
+
+/*
 
   test('will reload new data as original after total reset', () => {
     // TODO: could this test be cleaner?
@@ -108,8 +194,8 @@ describe('ValidationContext', () => {
     )
     const input = getByLabelText('foo')
     expect(input.value).toBe('foo3')
-  })
-
+  })*/
+/*
   test("external data updates reset history and trigger warning when 'noHistory' is 'false' (default)", () => {
     throw('implement me')
   })
@@ -120,7 +206,6 @@ describe('ValidationContext', () => {
 
   test("external data updates paired 'resetHistory={true}' produce no warning and resets the history", () => {
     throw('implement me')
-  })
+  })*/
 
   // test 'resetToOriginalData', 'undoCount', 'redoCount', 'undo(n)', 'redo(n)', 'historyPosition', reset of forward history after update, and no reset after non-change change (edit, and then edit back without blur)
-})
