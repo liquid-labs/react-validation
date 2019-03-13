@@ -200,9 +200,10 @@ describe('ValidationContext', () => {
   }) // validators variation loop
 
   describe("with initially invalid fields", () => {
-    let fooInput, getByTestId;
+    let fooInput, getByTestId, warningSpy
     beforeAll(() => {
-      ({ fooInput, getByTestId } = stdSetup(testValidators, { foo: null }))
+      ({ fooInput, getByTestId, warningSpy }
+        = stdSetup(testValidators, { foo: null }))
     })
 
     test('should not produce errors on invalid, untouched fields', () => {
@@ -225,6 +226,10 @@ describe('ValidationContext', () => {
       test('be invalid', () => {
         expect(getByTestId("isValid").textContent).toBe('false')
       })
+    })
+
+    test(`should not have triggered warnings`, () => {
+      expect(warningSpy).toHaveBeenCalledTimes(0)
     })
   })
 }) // describe('Validators', ...)
