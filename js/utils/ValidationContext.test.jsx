@@ -17,9 +17,10 @@ const TestChild = ({validators}) => {
         onChange={(event) => vcAPI.updateFieldValue('foo', event.target.value)}
         onBlur={(event) => vcAPI.blurField('foo')}
         value={vcAPI.getFieldInputValue('foo')} />
-      <button aria-label="resetButton" onClick={() => vcAPI.resetData() }>reset button</button>
-      <button aria-label="rewindButton" onClick={() => vcAPI.rewindData() }>rewind button</button>
-      <button aria-label="advanceButton" onClick={() => vcAPI.advanceData() }>advance button</button>
+      <button aria-label="resetButton" onClick={() => vcAPI.resetData() }>reset</button>
+      <button aria-label="rewindButton" onClick={() => vcAPI.rewindData() }>rewind</button>
+      <button aria-label="advanceButton" onClick={() => vcAPI.advanceData() }>advance</button>
+      <button aria-label="resetHistoryButton" onClick={() => vcAPI.resetHistory() }>reset history</button>
       <span data-testid="isChanged">{vcAPI.isChanged() + ''}</span>
       <span data-testid="isValid">{vcAPI.isValid() + ''}</span>
       <span data-testid="errorMsg">{vcAPI.getFieldErrorMessage('foo') + ''}</span>
@@ -267,6 +268,17 @@ describe('ValidationContext', () => {
         test(`should not have triggered warnings`, () => {
           expect(warningSpy).toHaveBeenCalledTimes(0)
         })
+
+        describe(`history is reset`, () => {
+          beforeAll(() => {
+            fireEvent.click(getByLabelText('resetHistoryButton'))
+          })
+
+          test("will have no history", () => {
+            expect(getByTestId('undoCount').textContent).toBe('null')
+            expect(getByTestId('redoCount').textContent).toBe('null')
+          })
+        })
       })
 
       describe("after external data change with 'resetHistory'", () => {
@@ -362,4 +374,4 @@ describe('ValidationContext', () => {
   })
 }) // describe('Validators', ...)
 
-  // 'undoCount', 'redoCount', 'undo(n)', 'redo(n)', 'historyPosition', reset of forward history after update, and no reset after non-change change (edit, and then edit back without blur)
+  //  reset of forward history after update, and no reset after non-change change (edit, and then edit back without blur)

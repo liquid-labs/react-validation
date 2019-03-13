@@ -207,10 +207,7 @@ const reducer = (state, action) => {
       }
       else return { ...state, dataHistory : [] }
     }
-    else {
-      if (state.dataHistory === undefined) return state
-      else return { ...state, dataHistory : undefined }
-    }
+    else return state
   }
 
   case actionTypes.TOTAL_RESET : return INITIAL_STATE

@@ -105,6 +105,8 @@ const ValidationContext = ({
     advanceData : (count=1) => dispatch(actions.advanceData(count)),
     resetData : () => dispatch(actions.resetData()),
 
+    resetHistory : () => dispatch(actions.resetHistory()),
+
     updateCallback : () => updateCallback(exportDataFromState(state))
   }), [ state, dispatch, historyLength, updateCallback ])
 
