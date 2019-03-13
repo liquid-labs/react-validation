@@ -4,7 +4,6 @@ import isEqual from 'lodash.isequal'
 
 const settings = {
   historyLength  : 10,
-  updateCallback : undefined,
 }
 
 const INITIAL_STATE = {
@@ -94,7 +93,6 @@ const reducer = (state, action) => {
   case actionTypes.RESET_DATA :
   case actionTypes.OFFSET_DATA : {
     // or a programatic update or reset
-    const initialUpdate = state.origData === undefined
     let data = action.data || state.origData
     let newHistoryIndex = 0 // for update
     if (action.type === actionTypes.OFFSET_DATA) {
@@ -102,7 +100,7 @@ const reducer = (state, action) => {
         throw new Error(`Cannot offset data with no history.`)
       }
 
-      let newHistoryIndex = state.historyIndex + action.offset
+      newHistoryIndex = state.historyIndex + action.offset
       if (newHistoryIndex < 0) newHistoryIndex = 0
       if (newHistoryIndex > (state.dataHistory.length - 1))
         newHistoryIndex = (state.dataHistory.length - 1)
@@ -111,7 +109,7 @@ const reducer = (state, action) => {
     }
     const newState = {
       ...state,
-      origData     : data,
+      origData     : action.type === actionTypes.UPDATE_DATA ? data : state.origData,
       historyIndex : newHistoryIndex,
       fieldData    : Object.entries(data).reduce((newFieldData, [fieldName, value]) => {
           newFieldData[fieldName] = {
@@ -121,7 +119,7 @@ const reducer = (state, action) => {
           }
           return newFieldData
         }, {}),
-      lastUpdate   : data
+      lastUpdate   : action.type === actionTypes.UPDATE_DATA ? data : state.lastUpdate
     }
     const dataHistory =
       action.type === actionTypes.OFFSET_DATA
@@ -132,10 +130,9 @@ const reducer = (state, action) => {
             ? processHistoryUpdate(newState)
             : [ data ]
     newState.dataHistory = dataHistory
-    if (action.type === actionTypes.RESET_DATA && state.dataHistory) {
-      state.historyIndex = state.dataHistory.length
+    if (action.type === actionTypes.RESET_DATA && newState.dataHistory) {
+      newState.historyIndex = newState.dataHistory.length - 1
     }
-    if (!initialUpdate) settings.updateCallback(data)
     return newState
   }
 
@@ -169,7 +166,6 @@ const reducer = (state, action) => {
     if (!fieldEntry.touched || newHistory !== state.dataHistory) {
       // Since the value is not changing here, we can use the current state.
       const updatedData = exportDataFromState(state)
-      settings.updateCallback(updatedData)
       return {
         ...state,
         dataHistory : newHistory,

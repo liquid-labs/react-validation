@@ -19,6 +19,7 @@ const TestChild = ({validators}) => {
         value={vcAPI.getFieldInputValue('foo')} />
       <button aria-label="resetButton" onClick={() => vcAPI.resetData() }>reset button</button>
       <button aria-label="rewindButton" onClick={() => vcAPI.rewindData() }>rewind button</button>
+      <button aria-label="advanceButton" onClick={() => vcAPI.advanceData() }>advance button</button>
       <span data-testid="isChanged">{vcAPI.isChanged() + ''}</span>
       <span data-testid="isValid">{vcAPI.isValid() + ''}</span>
       <span data-testid="errorMsg">{vcAPI.getFieldErrorMessage('foo') + ''}</span>
@@ -114,23 +115,6 @@ describe('ValidationContext', () => {
             fireEvent.blur(fooInput)}
           )
 
-          test('should invoke update callback', () => {
-            expect(updateCallback).toHaveBeenCalledTimes(1)
-          })
-
-          test("we double check the tests setup works like expected and 'dataEnvelope.data' is updated", () => {
-            expect(origData).not.toBe(dataEnvelope.data)
-          })
-
-          test("we double check the tests setup works like expected and 'dataEnvelope' is a different object", () => {
-            // This is important in the react context. We want to make sure we're using new objects.
-            expect(origData).not.toEqual(dataEnvelope.data)
-          })
-
-          test("should not effect the field input value", () => {
-            expect(dataEnvelope.data.foo).toBe('foo2')
-          })
-
           test("should have 1 undo available", () => {
             expect(getByTestId('undoCount').textContent).toBe('1')
           })
@@ -159,6 +143,28 @@ describe('ValidationContext', () => {
             test(`should not have triggered warnings`, () => {
               expect(warningSpy).toHaveBeenCalledTimes(0)
             })
+
+            describe("after stepping forward in history", () => {
+              beforeAll(() => {
+                fireEvent.click(getByLabelText('advanceButton'))
+              })
+
+              test("should display future value", () => {
+                expect(fooInput.value).toBe('foo2')
+              })
+
+              test("should have 1 undo available", () => {
+                expect(getByTestId('undoCount').textContent).toBe('1')
+              })
+
+              test("should have 0 redo available", () => {
+                expect(getByTestId('redoCount').textContent).toBe('0')
+              })
+
+              test(`should not have triggered warnings`, () => {
+                expect(warningSpy).toHaveBeenCalledTimes(0)
+              })
+            })
           })
         })
       })
@@ -171,6 +177,7 @@ describe('ValidationContext', () => {
         let dataEnvelope, fooInput, warningSpy,
           getByTestId, getByLabelText,
           origData, updateCallback
+
 
         beforeAll(() => {
           ({ dataEnvelope, fooInput, warningSpy,
@@ -304,18 +311,12 @@ describe('ValidationContext', () => {
             = stdSetup({validators}))
           fireEvent.change(fooInput, { target : { value : 'foo2' } })
           fireEvent.blur(fooInput)
-          // set callback baseline before final action
-          callbackBaseline = updateCallback.mock.calls.length
           const resetButton = getByLabelText('resetButton')
           fireEvent.click(resetButton)
         })
 
         test(`should display original values`, () => {
           expect(fooInput.value).toBe('foo')
-        })
-
-        test(`should invoke the callback handler for the reset`, () => {
-          expect(updateCallback).toHaveBeenCalledTimes(callbackBaseline + 1)
         })
 
         test(`should not have triggered warnings`, () => {
@@ -326,6 +327,7 @@ describe('ValidationContext', () => {
   }) // validators variation loop
 
   describe("with initially invalid fields", () => {
+
     let fooInput, getByTestId, warningSpy
     beforeAll(() => {
       ({ fooInput, getByTestId, warningSpy }

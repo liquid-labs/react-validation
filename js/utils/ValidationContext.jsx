@@ -27,7 +27,6 @@ const ValidationContext = ({
   const [ state, dispatch ] = useReducer(reducer, INITIAL_STATE)
 
   settings.historyLength = historyLength
-  settings.updateCallback = updateCallback
 
   useMemo(() => {
     if (resetHistory) {
@@ -97,8 +96,8 @@ const ValidationContext = ({
     advanceData : (count=1) => dispatch(actions.advanceData(count)),
     resetData : () => dispatch(actions.resetData()),
 
-    totalReset : () => dispatch(actions.totalReset())
-  }), [ state, dispatch, historyLength ])
+    updateCallback : () => updateCallback(exportDataFromState(state))
+  }), [ state, dispatch, historyLength, updateCallback ])
 
   return (
     <VContext.Provider value={api}>
