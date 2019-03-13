@@ -18,6 +18,7 @@ const TestChild = ({validators}) => {
         onBlur={(event) => vcAPI.blurField('foo')}
         value={vcAPI.getFieldInputValue('foo')} />
       <button aria-label="resetButton" onClick={() => vcAPI.resetData() }>reset button</button>
+      <button aria-label="rewindButton" onClick={() => vcAPI.rewindData() }>rewind button</button>
       <span data-testid="isChanged">{vcAPI.isChanged() + ''}</span>
       <span data-testid="isValid">{vcAPI.isValid() + ''}</span>
       <span data-testid="errorMsg">{vcAPI.getFieldErrorMessage('foo') + ''}</span>
@@ -128,6 +129,36 @@ describe('ValidationContext', () => {
 
           test("should not effect the field input value", () => {
             expect(dataEnvelope.data.foo).toBe('foo2')
+          })
+
+          test("should have 1 undo available", () => {
+            expect(getByTestId('undoCount').textContent).toBe('1')
+          })
+
+          describe("after stepping back in history", () => {
+            beforeAll(() => {
+              fireEvent.click(getByLabelText('rewindButton'))
+            })
+
+            test("should display previous value", () => {
+              expect(fooInput.value).toBe('foo')
+            })
+
+            test("should have 0 undo available", () => {
+              expect(getByTestId('undoCount').textContent).toBe('0')
+            })
+
+            test("should have 1 redo available", () => {
+              expect(getByTestId('undoCount').textContent).toBe('0')
+            })
+
+            test("should have updated external data (through callback)", () => {
+              expect(dataEnvelope.data.foo).toBe('foo')
+            })
+
+            test(`should not have triggered warnings`, () => {
+              expect(warningSpy).toHaveBeenCalledTimes(0)
+            })
           })
         })
       })
@@ -264,21 +295,27 @@ describe('ValidationContext', () => {
       })
 
       describe("with reset to original data", () => {
-        let fooInput, dataEnvelope, updateCallback,
-          getByLabelText, getByTestId, rerender
+        let fooInput, dataEnvelope, updateCallback, warningSpy,
+          getByLabelText, getByTestId, rerender, callbackBaseline
 
         beforeAll(() => {
-          ({ fooInput, dataEnvelope, updateCallback,
+          ({ fooInput, dataEnvelope, updateCallback, warningSpy,
             getByLabelText, getByTestId, rerender }
             = stdSetup({validators}))
           fireEvent.change(fooInput, { target : { value : 'foo2' } })
           fireEvent.blur(fooInput)
+          // set callback baseline before final action
+          callbackBaseline = updateCallback.mock.calls.length
           const resetButton = getByLabelText('resetButton')
           fireEvent.click(resetButton)
         })
 
         test(`should display original values`, () => {
           expect(fooInput.value).toBe('foo')
+        })
+
+        test(`should invoke the callback handler for the reset`, () => {
+          expect(updateCallback).toHaveBeenCalledTimes(callbackBaseline + 1)
         })
 
         test(`should not have triggered warnings`, () => {
@@ -312,7 +349,7 @@ describe('ValidationContext', () => {
         expect(getByTestId("errorMsg").textContent).toBe('Required.')
       })
 
-      test('be invalid', () => {
+      test('should be invalid', () => {
         expect(getByTestId("isValid").textContent).toBe('false')
       })
     })

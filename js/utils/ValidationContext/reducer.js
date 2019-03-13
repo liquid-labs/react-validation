@@ -41,13 +41,14 @@ const objToInputVal = (val) => val === null || val === undefined ? '' : val + ''
  * returns the first error message produced or 'null' no validation failed.
  */
 const validateFieldValue = (value, validators) => {
-  // First validator to fail is the one we use.
-  let errorMsg = null
-  validators.some((validator) => {
-    errorMsg = validator(objToInputVal(value))
+  if (validators) {
+    // First validator to fail is the one we use.
+    let errorMsg = null
+    validators.some((validator) => {
+      return (errorMsg = validator(objToInputVal(value)))
+    })
     return errorMsg
-  })
-  return errorMsg
+  }
 }
 
 /**
@@ -60,16 +61,6 @@ const exportDataFromState = (state) => Object.entries(state.fieldData)
   }, {})
 
 /**
- * 'processDataUpdate' returns a field entry to track the validation state of
- * the 'data' parameter.
- */
-const processDataUpdate = (data) =>
-  Object.entries(data).reduce((fieldData, [fieldName, value]) => {
-    fieldData[fieldName] = { ...fieldEntryTemplate, value }
-    return fieldData
-  }, {})
-
-/**
  * 'processHistoryUpdate' potentialy generates a new 'dataHistory' to capture
  * the current state of the data. If the current data is equivalent to the most
  * recent history state, then the current 'state.dataHistory' is returned.
@@ -78,7 +69,8 @@ const processDataUpdate = (data) =>
  */
 const processHistoryUpdate = (state) => {
   const { dataHistory } = state
-  if (settings.historyLength > 0) {
+  if (dataHistory === undefined) return dataHistory
+  else if (settings.historyLength > 0) {
     if (dataHistory.length === 0) return [ exportDataFromState(state) ]
     // else
     const currData = exportDataFromState(state)
@@ -99,22 +91,51 @@ const processHistoryUpdate = (state) => {
 const reducer = (state, action) => {
   switch (action.type) {
   case actionTypes.UPDATE_DATA :
-  case actionTypes.RESET_DATA : {
-    const data = action.data || state.origData
+  case actionTypes.RESET_DATA :
+  case actionTypes.OFFSET_DATA : {
+    // or a programatic update or reset
+    const initialUpdate = state.origData === undefined
+    let data = action.data || state.origData
+    let newHistoryIndex = 0 // for update
+    if (action.type === actionTypes.OFFSET_DATA) {
+      if (!state.dataHistory) {
+        throw new Error(`Cannot offset data with no history.`)
+      }
+
+      let newHistoryIndex = state.historyIndex + action.offset
+      if (newHistoryIndex < 0) newHistoryIndex = 0
+      if (newHistoryIndex > (state.dataHistory.length - 1))
+        newHistoryIndex = (state.dataHistory.length - 1)
+
+      data = state.dataHistory[newHistoryIndex]
+    }
     const newState = {
       ...state,
       origData     : data,
-      historyIndex : 0,
-      fieldData    : processDataUpdate(data),
+      historyIndex : newHistoryIndex,
+      fieldData    : Object.entries(data).reduce((newFieldData, [fieldName, value]) => {
+          newFieldData[fieldName] = {
+            ...(state.fieldData[fieldName] || fieldEntryTemplate),
+            value,
+            errorMsg: validateFieldValue(value, state.fieldData[fieldName] && state.fieldData[fieldName].validators)
+          }
+          return newFieldData
+        }, {}),
       lastUpdate   : data
     }
     const dataHistory =
-      settings.historyLength <= 0
-        ? undefined
-        : action.type === actionTypes.RESET_DATA
-          ? processHistoryUpdate(newState)
-          : [ data ]
+      action.type === actionTypes.OFFSET_DATA
+        ? state.dataHistory // then no change
+        : settings.historyLength <= 0
+          ? undefined
+          : action.type === actionTypes.RESET_DATA
+            ? processHistoryUpdate(newState)
+            : [ data ]
     newState.dataHistory = dataHistory
+    if (action.type === actionTypes.RESET_DATA && state.dataHistory) {
+      state.historyIndex = state.dataHistory.length
+    }
+    if (!initialUpdate) settings.updateCallback(data)
     return newState
   }
 
@@ -152,6 +173,7 @@ const reducer = (state, action) => {
       return {
         ...state,
         dataHistory : newHistory,
+        historyIndex : (newHistory && newHistory.length - 1) || 0,
         fieldData   : {
           ...state.fieldData,
           [fieldName] : { ...fieldEntry, touched : true, blurredAfterChange: true }
@@ -189,7 +211,7 @@ const reducer = (state, action) => {
       else return { ...state, dataHistory : [] }
     }
     else {
-      if (state.dataHistotry === undefined) return state
+      if (state.dataHistory === undefined) return state
       else return { ...state, dataHistory : undefined }
     }
   }

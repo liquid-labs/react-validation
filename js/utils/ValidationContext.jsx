@@ -93,7 +93,8 @@ const ValidationContext = ({
     getRedoCount : () => historyLength > 0
       ? state.dataHistory.length - state.historyIndex - 1
       : null,
-
+    rewindData : (count=1) => dispatch(actions.rewindData(count)),
+    advanceData : (count=1) => dispatch(actions.advanceData(count)),
     resetData : () => dispatch(actions.resetData()),
 
     totalReset : () => dispatch(actions.totalReset())
