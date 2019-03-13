@@ -1,3 +1,12 @@
+/**
+ * ValidationContext is intended primarily as a 'form wrapper'. Once the initial
+ * data is supplied, the form will manage the data internally which is finally
+ * exported out when done (as in on submit) via the 'updateCallback'.
+ *
+ * The 'data' may be changed externally, though this will cause a warning unless
+ * 'historyLength' is '0' or 'resetHistory' is 'true'. None of this should be
+ * necessary for general usage, however.
+ */
 import React, { createContext, useContext, useMemo, useReducer } from 'react'
 import PropTypes from 'prop-types'
 
