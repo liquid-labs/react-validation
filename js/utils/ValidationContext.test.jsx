@@ -26,6 +26,7 @@ const TestChild = ({validators}) => {
       <span data-testid="errorMsg">{vcAPI.getFieldErrorMessage('foo') + ''}</span>
       <span data-testid="undoCount">{vcAPI.getUndoCount() + ''}</span>
       <span data-testid="redoCount">{vcAPI.getRedoCount() + ''}</span>
+      <span data-testid="origData">{JSON.stringify(vcAPI.getOrigData())}</span>
     </div>
   )
 }
@@ -89,6 +90,10 @@ describe('ValidationContext', () => {
         test('not call the update callback', () => {
           expect(updateCallback).toHaveBeenCalledTimes(0)
         })
+
+        test(`display the 'origData'`, () => {
+          expect(JSON.stringify(dataEnvelope.data)).toBe(getByTestId('origData').textContent)
+        })
       })
 
       describe('on field change', () => {
@@ -143,6 +148,10 @@ describe('ValidationContext', () => {
 
             test(`should not have triggered warnings`, () => {
               expect(warningSpy).toHaveBeenCalledTimes(0)
+            })
+
+            test(`should not change the 'origData'`, () => {
+              expect(JSON.stringify(dataEnvelope.data)).toBe(getByTestId('origData').textContent)
             })
 
             describe("after stepping forward in history", () => {
