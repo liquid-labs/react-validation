@@ -34,7 +34,7 @@ const ValidInput = withStyles(styles)(({
   viewOnly, defaultViewValue,
   noJump, help, className, classes,
   ...muiProps}) => {
-    // TODO: allow 'noJump' to be set on context (and from there in settings)
+  // TODO: allow 'noJump' to be set on context (and from there in settings)
   const vcAPI = useValidationContextAPI()
   if (!vcAPI) {
     throw new Error(`No validation context API found. Perhaps you are trying to use 'ValidInput' outside a 'ValidationContext.'`)
@@ -98,15 +98,18 @@ const ValidInput = withStyles(styles)(({
     conditionalProps.value = dispValue
 
     // setup change handlers for non-view only
-    const updater = (event) =>
-      vcAPI.updateFieldValue(effectivePropName, event.target.value)
     if (onChange) {
       conditionalProps.onChange = (event) => {
-        updater(event)
-        onChange(event)
+        const potentialVal = onChange(event)
+        const newVal = potentialVal !== undefined
+          ? potentialVal : event.target.value
+        vcAPI.updateFieldValue(effectivePropName, newVal)
       }
     }
-    else conditionalProps.onChange = updater
+    else {
+      conditionalProps.onChange = (event) =>
+        vcAPI.updateFieldValue(effectivePropName, event.target.value)
+    }
   }
 
   if (help) {

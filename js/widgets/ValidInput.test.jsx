@@ -1,4 +1,4 @@
-/* global afterAll beforeAll describe expect jest test */
+/* global beforeAll describe expect jest test */
 import React from 'react'
 
 import { ValidationContext, useValidationContextAPI } from '../utils/ValidationContext'
@@ -83,7 +83,7 @@ describe(`ValidInput`, () => {
       beforeAll(() => {
         cleanup();
         ({ container } = render(
-          <ValidationContext data={{ foo: 'fooVal' }}>
+          <ValidationContext data={{ foo : 'fooVal' }}>
             <ValidInput id="foo" label="foo" gridded />
             <TestData />
           </ValidationContext>
@@ -100,7 +100,7 @@ describe(`ValidInput`, () => {
       beforeAll(() => {
         cleanup();
         ({ container, getByText } = render(
-          <ValidationContext data={{ foo: 'fooVal' }}>
+          <ValidationContext data={{ foo : 'fooVal' }}>
             <ValidInput id="foo" label="foo" help="Foo is not bar." />
             <TestData />
           </ValidationContext>
@@ -118,6 +118,79 @@ describe(`ValidInput`, () => {
           expect(getByText("Foo is not bar.")).not.toBeNull()
         })
       })
-    })
+    }) // with help
+
+    describe('with onChange (no result)', () => {
+      let getByLabelText, getByTestId, fooInput, changeSpy
+
+      beforeAll(() => {
+        cleanup()
+        changeSpy = jest.fn();
+        ({ getByLabelText, getByTestId } = render(
+          <ValidationContext data={{ foo : "fooVal" }}>
+            <ValidInput id="foo" label="foo" onChange={changeSpy} />
+            <TestData />
+          </ValidationContext>
+        ));
+        fooInput = getByLabelText('foo')
+      })
+
+      test('will show the baseline value', () => {
+        expect(fooInput.value).toBe('fooVal')
+      })
+
+      describe('after updating the value', () => {
+        beforeAll(() => { fireEvent.change(fooInput, { target : { value : 'foo2' } }) })
+
+        test('will display the value', () => {
+          expect(fooInput.value).toBe('foo2')
+        })
+
+        test('update the value in the context', () => {
+          expect(getByTestId('fooValue').textContent).toBe('foo2')
+        })
+
+        test("call the passed in 'onChange'", () => {
+          expect(changeSpy).toHaveBeenCalledTimes(1)
+        })
+      })
+    }) // with onChange (no result)
+
+    describe('with onChange (value modifying)', () => {
+      let getByLabelText, getByTestId, fooInput, changeSpy
+
+      beforeAll(() => {
+        cleanup()
+        const onChange = () => 'FOO2'
+        changeSpy = jest.fn(onChange);
+        ({ getByLabelText, getByTestId } = render(
+          <ValidationContext data={{ foo : "fooVal" }}>
+            <ValidInput id="foo" label="foo" onChange={changeSpy} />
+            <TestData />
+          </ValidationContext>
+        ));
+        fooInput = getByLabelText('foo')
+      })
+
+      test('will show the baseline value', () => {
+        expect(fooInput.value).toBe('fooVal')
+      })
+
+      describe('after updating the value', () => {
+        beforeAll(() => { fireEvent.change(fooInput, { target : { value : 'foo2' } }) })
+
+        test('will display the modified value', () => {
+          expect(fooInput.value).toBe('FOO2')
+        })
+
+        test('update the modified value in the context', () => {
+          expect(getByTestId('fooValue').textContent).toBe('FOO2')
+        })
+
+        test("call the passed in 'onChange'", () => {
+          expect(changeSpy).toHaveBeenCalledTimes(1)
+        })
+      })
+    }) // with onChange (value modifying)
   }) // within a valid context
 })
