@@ -31,8 +31,9 @@
   "homepage": "https://github.com/Liquid-Labs/react-validation#readme",
   "devDependencies": {
     "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.15",
+    "@liquid-labs/regex-repo": "^1.0.0-alpha.3",
     "@liquid-labs/mui-extensions": "^1.0.0-prototype.0",
-    "@liquid-labs/validators": "^1.0.0-prototype.0",
+    "@liquid-labs/validators": "^1.0.0-prototype.2",
     "@material-ui/core": "^3.9.2",
     "classnames": "^2.2.6",
     "lodash.camelcase": "^4.3.0",
@@ -42,8 +43,9 @@
     "react-testing-library": "^6.0.0"
   },
   "peerDependencies": {
-    "@liquid-labs/mui-extensions": "0.0.10",
-    "@liquid-labs/validators": "0.0.3",
+    "@liquid-labs/mui-extensions": "^1.0.0-prototype.0",
+    "@liquid-labs/regex-repo": "^1.0.0-alpha.3",
+    "@liquid-labs/validators": "^1.0.0-prototype.2",
     "@material-ui/core": "1.x || 3.x",
     "classnames": "^2.2.6",
     "lodash.camelcase": "^4.3",
@@ -61,5 +63,6 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "dependencies": {}
 }
