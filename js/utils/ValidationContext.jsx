@@ -49,6 +49,7 @@ const ValidationContext = ({
         || (state.lastUpdate !== data
             && !isEqual(state.lastUpdate, data))) {
       if (state.origData !== undefined && historyLength > 0 && !resetHistory) {
+        // eslint-disable-next-line no-console
         console.warn(`Programatic update of data detected. Form history will be reset.`)
       }
       dispatch(actions.updateData(data))

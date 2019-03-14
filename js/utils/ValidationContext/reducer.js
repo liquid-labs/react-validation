@@ -164,8 +164,6 @@ const reducer = (state, action) => {
     const fieldEntry = state.fieldData[fieldName] || fieldEntryTemplate
     if (!fieldEntry.touched || !fieldEntry.blurredAfterChange) {
       const newHistory = processHistoryUpdate(state)
-      // Since the value is not changing here, we can use the current state.
-      const updatedData = exportDataFromState(state)
       return {
         ...state,
         dataHistory  : newHistory,

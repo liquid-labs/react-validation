@@ -1,9 +1,10 @@
-/* global afterEach describe expect test */
-import React, { useEffect } from 'react'
+/* global afterAll beforeAll describe expect jest test */
+import React from 'react'
+import PropTypes from 'prop-types'
 
 import { ValidationContext, useValidationContextAPI } from './ValidationContext'
 
-import { act, cleanup, fireEvent, render } from 'react-testing-library'
+import { cleanup, fireEvent, render } from 'react-testing-library'
 import isEqual from 'lodash.isequal'
 
 const TestChild = ({validators}) => {
@@ -29,6 +30,10 @@ const TestChild = ({validators}) => {
       <span data-testid="origData">{JSON.stringify(vcAPI.getOrigData())}</span>
     </div>
   )
+}
+
+TestChild.propTypes = {
+  validators : PropTypes.arrayOf(PropTypes.func)
 }
 
 const testValidators = [
@@ -71,7 +76,7 @@ describe('ValidationContext', () => {
     ['with initial validators', testValidators]].forEach(([desc, validators]) => {
     describe(desc, () => {
       let dataEnvelope, fooInput, warningSpy,
-        getByTestId, getByLabelText, rerender,
+        getByTestId, getByLabelText,
         origData, updateCallback;
 
       beforeAll(() => {
@@ -186,13 +191,10 @@ describe('ValidationContext', () => {
 
       describe('after no-change edit and blur', () => {
         let dataEnvelope, fooInput, warningSpy,
-          getByTestId, getByLabelText,
           origData, updateCallback
-
 
         beforeAll(() => {
           ({ dataEnvelope, fooInput, warningSpy,
-            getByTestId, getByLabelText,
             origData, updateCallback } = stdSetup({validators}))
 
           fireEvent.change(fooInput, { target : { value : 'foo2' } })
@@ -217,13 +219,13 @@ describe('ValidationContext', () => {
 
       describe('after external data change with default settings', () => {
         let fooInput, dataEnvelope, updateCallback,
-          getByLabelText, getByTestId, rerender
+          getByTestId, rerender
 
         beforeAll(() => {
           ({ fooInput, dataEnvelope, updateCallback,
-            getByLabelText, getByTestId, rerender } =
+            getByTestId, rerender } =
             stdSetup({validators}))
-          dataEnvelope.data = { foo : 'foo3'}
+          dataEnvelope.data = { foo : 'foo3' }
           rerender(
             <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback}>
               <TestChild validators={validators} />
@@ -256,7 +258,7 @@ describe('ValidationContext', () => {
           ({ fooInput, dataEnvelope, updateCallback,
             getByLabelText, getByTestId, rerender } =
             stdSetup({validators, historyLength : 0}))
-          dataEnvelope.data = { foo : 'foo3'}
+          dataEnvelope.data = { foo : 'foo3' }
           rerender(
             <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback} historyLength={0}>
               <TestChild validators={validators} />
@@ -293,13 +295,13 @@ describe('ValidationContext', () => {
 
       describe("after external data change with 'resetHistory'", () => {
         let fooInput, dataEnvelope, updateCallback,
-          getByLabelText, getByTestId, rerender
+          getByTestId, rerender
 
         beforeAll(() => {
           ({ fooInput, dataEnvelope, updateCallback,
-            getByLabelText, getByTestId, rerender } =
+            getByTestId, rerender } =
             stdSetup({validators}))
-          dataEnvelope.data = { foo : 'foo3'}
+          dataEnvelope.data = { foo : 'foo3' }
           rerender(
             <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback} resetHistory>
               <TestChild validators={validators} />
@@ -324,12 +326,10 @@ describe('ValidationContext', () => {
       })
 
       describe("with reset to original data", () => {
-        let fooInput, dataEnvelope, updateCallback, warningSpy,
-          getByLabelText, getByTestId, rerender, callbackBaseline
+        let fooInput, warningSpy, getByLabelText
 
         beforeAll(() => {
-          ({ fooInput, dataEnvelope, updateCallback, warningSpy,
-            getByLabelText, getByTestId, rerender } =
+          ({ fooInput, warningSpy, getByLabelText } =
             stdSetup({validators}))
           fireEvent.change(fooInput, { target : { value : 'foo2' } })
           fireEvent.blur(fooInput)
