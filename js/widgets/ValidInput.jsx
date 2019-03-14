@@ -119,7 +119,7 @@ const ValidInput = withStyles(styles)(({
         error={!errorMsg}
         FormHelperTextProps={{ ...muiProps.FormHelperTextProps, component : 'div' }}
         helperText={errorMsg || helperText || noJump ? <div style={{ height : '1em' }}>{errorMsg || helperText}</div> : null}
-        fullWidth={'fullWidth' in muiProps ? muiProps.fullWidth : (!!gridded)}
+        fullWidth={'fullWidth' in muiProps ? muiProps.fullWidth : Boolean(gridded)}
         {...selectOptions}
     />
 
