@@ -39,6 +39,7 @@ describe(`ValidInput`, () => {
       let getByLabelText, getByTestId, fooInput
 
       beforeAll(() => {
+        cleanup();
         ({ getByLabelText, getByTestId } = render(
           <ValidationContext>
             <ValidInput id="foo" label="foo" value="fooVal" />
@@ -80,6 +81,7 @@ describe(`ValidInput`, () => {
       let container
 
       beforeAll(() => {
+        cleanup();
         ({ container } = render(
           <ValidationContext data={{ foo: 'fooVal' }}>
             <ValidInput id="foo" label="foo" gridded />
@@ -90,6 +92,31 @@ describe(`ValidInput`, () => {
 
       test('the input is displayed in a grid item', () => {
         expect(container.querySelector("[class^='MuiGrid-item']")).not.toBeNull()
+      })
+    })
+
+    describe('with help', () => {
+      let container, getByText, helpButton
+      beforeAll(() => {
+        cleanup();
+        ({ container, getByText } = render(
+          <ValidationContext data={{ foo: 'fooVal' }}>
+            <ValidInput id="foo" label="foo" help="Foo is not bar." />
+            <TestData />
+          </ValidationContext>
+        ))
+        helpButton = container.querySelector("[class^='Help-root'] button")
+      })
+
+      test('includes the help button', () => {
+        expect(helpButton).not.toBeNull()
+      })
+
+      describe('after clicking the help control', () => {
+        beforeAll(() => fireEvent.click(helpButton))
+        test('includes the help', () => {
+          expect(getByText("Foo is not bar.")).not.toBeNull()
+        })
       })
     })
   }) // within a valid context
