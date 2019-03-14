@@ -3,10 +3,12 @@ const actionTypes = {
   UPDATE_FIELD_VALUE      : 1,
   BLUR_FIELD              : 2,
   UPDATE_FIELD_VALIDATORS : 3,
-  OFFSET_DATA             : 4,
-  RESET_DATA              : 5,
-  RESET_HISTORY           : 6,
-  TOTAL_RESET             : 7,
+  ADD_CONTEXT_VALIDATOR   : 4,
+  REMOVE_CONTEXT_VALIDATOR : 5,
+  OFFSET_DATA             : 6,
+  RESET_DATA              : 7,
+  RESET_HISTORY           : 8,
+  TOTAL_RESET             : 9,
 }
 
 const actions = {
@@ -18,9 +20,14 @@ const actions = {
 
   updateFieldValidators : (fieldName, validators) =>
     ({ type : actionTypes.UPDATE_FIELD_VALIDATORS, fieldName, validators }),
+  addContextValidator : (fieldName, validator, triggerFields) =>
+    ({ type : actionTypes.ADD_CONTEXT_VALIDATOR,
+      fieldName, validator, triggerFields }),
+  removeContextValidator : (validator) =>
+    ({ type : actionTypes.REMOVE_CONTEXT_VALIDATOR, fieldName, validator }),
 
-  rewindData   : (count) => ({ type : actionTypes.OFFSET_DATA, offset : -count }),
-  advanceData  : (count) => ({ type : actionTypes.OFFSET_DATA, offset : count }),
+  rewindData   : (offset) => ({ type : actionTypes.OFFSET_DATA, offset : -offset }),
+  advanceData  : (offset) => ({ type : actionTypes.OFFSET_DATA, offset }),
   resetData    : () => ({ type : actionTypes.RESET_DATA }),
   resetHistory : () => ({ type : actionTypes.RESET_HISTORY }),
 

@@ -22,6 +22,10 @@ const TestChild = ({validators}) => {
       <button aria-label="rewindButton" onClick={() => vcAPI.rewindData()}>rewind</button>
       <button aria-label="advanceButton" onClick={() => vcAPI.advanceData()}>advance</button>
       <button aria-label="resetHistoryButton" onClick={() => vcAPI.resetHistory()}>reset history</button>
+      <button aria-label="addContextValidatorButton"
+          onClick={() => vcAPI.addContextValidator('foo', (data) => data.foo === 'baz' ? 'No baz!' : null, ['foo'])}>
+        add context validator
+      </button>
       <span data-testid="isChanged">{vcAPI.isChanged() + ''}</span>
       <span data-testid="isValid">{vcAPI.isValid() + ''}</span>
       <span data-testid="errorMsg">{vcAPI.getFieldErrorMessage('foo') + ''}</span>
@@ -327,6 +331,7 @@ describe('ValidationContext', () => {
           getByTestId, rerender
 
         beforeAll(() => {
+          cleanup();
           ({ fooInput, dataEnvelope, updateCallback,
             getByTestId, rerender } =
             stdSetup({validators}))
@@ -337,8 +342,6 @@ describe('ValidationContext', () => {
             </ValidationContext>
           )
         })
-
-        afterAll(cleanup)
 
         test("will reflect change", () => {
           expect(fooInput.value).toBe('foo3')
@@ -358,6 +361,7 @@ describe('ValidationContext', () => {
         let fooInput, warningSpy, getByLabelText
 
         beforeAll(() => {
+          cleanup();
           ({ fooInput, warningSpy, getByLabelText } =
             stdSetup({validators}))
           fireEvent.change(fooInput, { target : { value : 'foo2' } })
@@ -374,11 +378,40 @@ describe('ValidationContext', () => {
           expect(warningSpy).toHaveBeenCalledTimes(0)
         })
       })
+
+      describe('with context validators', () => {
+        let fooInput, getByTestId, warningSpy
+        beforeAll(() => {
+          cleanup()
+          let debug;
+          ({ fooInput, getByTestId, warningSpy, debug } =
+            stdSetup({ validators, origData : { foo : 'foo' } }));
+          fireEvent.click(getByLabelText('addContextValidatorButton'))
+        })
+
+        test(`should display initial values`, () => {
+          expect(fooInput.value).toBe('foo')
+        })
+
+        describe('with value triggering context validator and field blurred', () => {
+          beforeAll(() => {
+            fireEvent.change(fooInput, { target : { value : 'baz' }})
+            fireEvent.blur(fooInput)
+          })
+
+          test('will generate context error', () => {
+            expect(getByTestId('errorMsg').textContent).toBe('No baz!')
+          })
+        })
+
+        test(`should not have triggered warnings`, () => {
+          expect(warningSpy).toHaveBeenCalledTimes(0)
+        })
+      })
     }) // validators variation describe
   }) // validators variation loop
 
   describe("with initially invalid fields", () => {
-
     let fooInput, getByTestId, warningSpy
     beforeAll(() => {
       ({ fooInput, getByTestId, warningSpy } =
@@ -410,7 +443,7 @@ describe('ValidationContext', () => {
     test(`should not have triggered warnings`, () => {
       expect(warningSpy).toHaveBeenCalledTimes(0)
     })
-  })
+  }) // with initially invalid fields
 }) // describe('Validators', ...)
 
 //  reset of forward history after update, and no reset after non-change change (edit, and then edit back without blur)

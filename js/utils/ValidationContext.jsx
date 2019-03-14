@@ -91,6 +91,13 @@ const ValidationContext = ({
     updateFieldValidators : (fieldName, validators) => {
       if (!state.fieldData[fieldName] || !isEqual(state.fieldData[fieldName].validators, validators)) {dispatch(actions.updateFieldValidators(fieldName, validators))}
     },
+    addContextValidator : (fieldName, validator, triggerFields) => {
+      dispatch(actions.addContextValidator(fieldName, validator, triggerFields))
+      return validator
+    },
+    removeContextValidator : (validator) => {
+      dispatch(actions.removeContextValidator(validator))
+    },
 
     // Error messages are only returned when the field is touched.
     getFieldErrorMessage : (fieldName) => {

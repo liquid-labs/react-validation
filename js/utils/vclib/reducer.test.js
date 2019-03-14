@@ -1,7 +1,7 @@
 /**
- * Reducer is primarily excercised through the 'ValidationContext' test. Here
- * we generally test edge cases, though we also test along the way as we setup
- * the edge cases.
+ * Reducer is excercised primarily, though indirectly, through the
+ * 'ValidationContext' test. Here we generally test edge cases, though we also
+ * test along the way as we setup the edge cases.
  */
 /* global beforeAll describe expect test */
 import { reducer, INITIAL_STATE } from './reducer'

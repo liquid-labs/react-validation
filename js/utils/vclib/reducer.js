@@ -19,6 +19,7 @@ const INITIAL_STATE = {
       blurredAfterChange: false | true,
     } */
   },
+  contextValidators : {},
   lastUpdate : null
 }
 
@@ -47,6 +48,23 @@ const validateFieldValue = (value, validators) => {
       return (errorMsg = validator(objToInputVal(value)))
     })
     return errorMsg
+  }
+}
+
+/**
+ * 'validateContextValues' processes context validators and update the
+ * 'fieldData' object. Thus, if 'fieldData' needs to be a new object, the caller
+ * must pass it in as such. Expects that 'field validators' checks are
+ * up-to-date and will not overwrite existing data (== prefer field validaiton
+ * errors).
+ */
+const validateContextValues = (fieldData, validatorInfos, data) => {
+  if (validatorInfos && validatorInfos.length > 0) {
+    validatorInfos.forEach(([bindFieldName, validator]) => {
+      const fieldEntry = fieldData[bindFieldName] || fieldEntryTemplate
+      fieldData[bindFieldName] = fieldEntry
+      if (!fieldEntry.errorMsg) fieldEntry.errorMsg = validator(data)
+    })
   }
 }
 
@@ -110,15 +128,25 @@ const reducer = (state, action) => {
       origData     : action.type === actionTypes.UPDATE_DATA ? data : state.origData,
       historyIndex : newHistoryIndex,
       fieldData    : Object.entries(data).reduce((newFieldData, [fieldName, value]) => {
+        const fieldEntry = state.fieldData[fieldName]
+        const errorMsg =
+          validateFieldValue(value, fieldEntry && fieldEntry.validators)
         newFieldData[fieldName] = {
-          ...(state.fieldData[fieldName] || fieldEntryTemplate),
+          ...(fieldEntry || fieldEntryTemplate),
           value,
-          errorMsg : validateFieldValue(value, state.fieldData[fieldName] && state.fieldData[fieldName].validators)
+          errorMsg,
         }
         return newFieldData
       }, {}),
       lastUpdate : action.type === actionTypes.UPDATE_DATA ? data : state.lastUpdate
     }
+    const newData = exportDataFromState(newState)
+    Object.keys(newData).forEach((fieldName) => {
+      validateContextValues(newState.fieldData,
+                            newState.contextValidators[fieldName],
+                            newData)
+    })
+
     const dataHistory =
       settings.historyLength <= 0
         ? 0
@@ -138,22 +166,27 @@ const reducer = (state, action) => {
 
   case actionTypes.UPDATE_FIELD_VALUE : {
     const { fieldName, value } = action
+
     if (value === undefined) throw new Error(`Value (for '${fieldName}') cannot be 'undefined'.`)
+
     const fieldEntry = state.fieldData[fieldName] || fieldEntryTemplate
     // note template 'value' is 'undefined', and per above check, 'value' can
-    // never be 'undefined'.
+    // never be 'undefined', so this is always run when creating a new field.
     if (fieldEntry.value !== value) {
+      // We're modifying state directly here for efficiency; we will replace
+      // state when we finish.
+      state.fieldData[fieldName] = fieldEntry
+      fieldEntry.errorMsg = validateFieldValue(value, fieldEntry.validators)
+      fieldEntry.value = value
+      fieldEntry.blurredAfterChange = false
+      const newFieldData = { ...state.fieldData }
+      validateContextValues(newFieldData,
+                            state.contextValidators[fieldName],
+                            exportDataFromState(state))
+
       return {
         ...state,
-        fieldData : {
-          ...state.fieldData,
-          [fieldName] : {
-            ...fieldEntry,
-            errorMsg           : validateFieldValue(value, fieldEntry.validators),
-            value              : value,
-            blurredAfterChange : false
-          }
-        }
+        fieldData : newFieldData,
       }
     }
     else /* there's a 'fieldData' entry with the same value; */ return state
@@ -194,6 +227,39 @@ const reducer = (state, action) => {
       }
     }
     else /* no change */ return state
+  }
+
+  case actionTypes.ADD_CONTEXT_VALIDATOR : {
+    const { fieldName, validator, triggerFields } = action
+    const validatorInfo = [fieldName, validator]
+    const newCV = { ...state.contextValidators }
+    if (triggerFields && triggerFields.length > 0) {
+      triggerFields.forEach((fieldName) => {
+        newCV[fieldName] = (newCV[fieldName] || []).concat([validatorInfo])
+      })
+    }
+    else {
+      newCV['*'] = (newCV['*'] || []).concat([validatorInfo])
+    }
+    return {
+      ...state,
+      contextValidators : newCV
+    }
+  }
+
+  case actionTypes.REMOVE_CONTEXT_VALIDATOR : {
+    const { validator } = action
+    const newCV =
+      Object.entries(state.contextValidators)
+        .reduce((cv, [fieldName, validatorInfo]) => {
+          const newVI = validatorInfo.filter(([fN, v]) => v !== validator)
+          if (newList.length > 0) cv[fieldName] = newVI
+          return cv
+        }, {})
+    return {
+      ...state,
+      contextValidators : newCV
+    }
   }
 
   case actionTypes.RESET_HISTORY : {
