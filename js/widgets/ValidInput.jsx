@@ -27,35 +27,37 @@ const styles = (theme) => ({
 const ValidInput = withStyles(styles)(({
   label, propName, value,
   select,
-  required, validate,
+  required, validators,
   format, gridded,
   onChange,
   helperText,
   viewOnly, defaultViewValue,
   noJump, help, className, classes,
   ...muiProps}) => {
-
+    // TODO: allow 'noJump' to be set on context (and from there in settings)
   const vcAPI = useValidationContextAPI()
 
   const effectivePropName = propName || camelCase(label)
   const touched = vcAPI.isFieldTouched(effectivePropName)
 
-  useMemo(() => {
-    const validations =
-      validate === undefined ? []
-        : Array.isArray(validate) ? validate : [ validate ]
+  if (value === undefined) value = vcAPI.getFieldInputValue(effectivePropName)
 
-    if (required && !validations.includes(isRequired)) {
-      validations.unshift(isRequired)
+  useMemo(() => {
+    validators =
+      validators === undefined
+        ? []
+        : Array.isArray(validators) ? validators : [ validators ]
+
+    if (required && !validators.includes(isRequired)) {
+      validators.unshift(isRequired)
     }
-    vcAPI.updateFieldValidators(effectivePropName, validations)
-  }, [validate])
+    if (validators.length > 0) {
+      vcAPI.updateFieldValidators(effectivePropName, validators)
+    }
+  }, [validators])
 
   const onBlur = (event) => {
     vcAPI.setFieldTouched(effectivePropName)
-    // State updates asynchrounously, so we trigger a forced validation check.
-    // TODO: is this necessary since 'setTouched' will trigger a re-render?
-    // doValidate(value, true)
   }
 
   // TODO: verify that only one of onInputChange or onChange is supplied.
@@ -109,6 +111,7 @@ const ValidInput = withStyles(styles)(({
 
   const errorMsg = vcAPI.getFieldErrorMessage(effectivePropName)
 
+  // memo-ize this?
   const ValidatedTextField =
     <TextField
         label={label}
