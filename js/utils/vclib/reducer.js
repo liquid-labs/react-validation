@@ -58,14 +58,16 @@ const validateFieldValue = (value, validators) => {
  * up-to-date and will not overwrite existing data (== prefer field validaiton
  * errors).
  */
-const validateContextValues = (fieldData, validatorInfos, data) => {
-  if (validatorInfos && validatorInfos.length > 0) {
-    validatorInfos.forEach(([bindFieldName, validator]) => {
-      const fieldEntry = fieldData[bindFieldName] || fieldEntryTemplate
-      fieldData[bindFieldName] = fieldEntry
-      if (!fieldEntry.errorMsg) fieldEntry.errorMsg = validator(data)
-    })
-  }
+const validateContextValues = (fieldData, data, ...validatorInfosArr) => {
+  validatorInfosArr.forEach((validatorInfos) => {
+    if (validatorInfos && validatorInfos.length > 0) {
+      validatorInfos.forEach(([bindFieldName, validator]) => {
+        const fieldEntry = fieldData[bindFieldName] || fieldEntryTemplate
+        fieldData[bindFieldName] = fieldEntry
+        if (!fieldEntry.errorMsg) fieldEntry.errorMsg = validator(data)
+      })
+    }
+  })
 }
 
 /**
@@ -143,8 +145,9 @@ const reducer = (state, action) => {
     const newData = exportDataFromState(newState)
     Object.keys(newData).forEach((fieldName) => {
       validateContextValues(newState.fieldData,
+                            newData,
                             newState.contextValidators[fieldName],
-                            newData)
+                            newState.contextValidators['*'])
     })
 
     const dataHistory =
@@ -181,8 +184,9 @@ const reducer = (state, action) => {
       fieldEntry.blurredAfterChange = false
       const newFieldData = { ...state.fieldData }
       validateContextValues(newFieldData,
+                            exportDataFromState(state),
                             state.contextValidators[fieldName],
-                            exportDataFromState(state))
+                            state.contextValidators['*'])
 
       return {
         ...state,
@@ -241,6 +245,8 @@ const reducer = (state, action) => {
     else {
       newCV['*'] = (newCV['*'] || []).concat([validatorInfo])
     }
+    const newFieldData = { ...state.fieldData }
+
     return {
       ...state,
       contextValidators : newCV
