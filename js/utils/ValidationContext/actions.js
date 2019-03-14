@@ -19,10 +19,10 @@ const actions = {
   updateFieldValidators : (fieldName, validators) =>
     ({ type : actionTypes.UPDATE_FIELD_VALIDATORS, fieldName, validators }),
 
-  rewindData : (count) => ({ type : actionTypes.OFFSET_DATA, offset: -count }),
-  advanceData : (count) => ({ type : actionTypes.OFFSET_DATA, offset: count }),
-  resetData : () => ({ type: actionTypes.RESET_DATA }),
-  resetHistory : () => ({ type: actionTypes.RESET_HISTORY }),
+  rewindData   : (count) => ({ type : actionTypes.OFFSET_DATA, offset : -count }),
+  advanceData  : (count) => ({ type : actionTypes.OFFSET_DATA, offset : count }),
+  resetData    : () => ({ type : actionTypes.RESET_DATA }),
+  resetHistory : () => ({ type : actionTypes.RESET_HISTORY }),
 
   // TODO: in previous implementation, we used something like this, but now I'm
   // thinking it's superfluous

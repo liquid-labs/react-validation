@@ -66,8 +66,7 @@ const ValidationContext = ({
       return (fieldEntry && objToInputVal(fieldEntry.value)) || ''
     },
     updateFieldValue : (fieldName, value) => {
-      if (!state.fieldData[fieldName] || state.fieldData[fieldName].value !== value)
-        dispatch(actions.updateField(fieldName, value))
+      if (!state.fieldData[fieldName] || state.fieldData[fieldName].value !== value) {dispatch(actions.updateField(fieldName, value))}
     },
 
     isChanged : () => !isEqual(state.origData, exportDataFromState(state)),
@@ -82,13 +81,11 @@ const ValidationContext = ({
     blurField : (fieldName) => {
       if (!state.fieldData[fieldName]
           || !state.fieldData[fieldName].touched
-          || !state.fieldData[fieldName].blurredAfterChange)
-        dispatch(actions.blurField(fieldName))
+          || !state.fieldData[fieldName].blurredAfterChange) {dispatch(actions.blurField(fieldName))}
     },
 
     updateFieldValidators : (fieldName, validators) => {
-      if (!state.fieldData[fieldName] || !isEqual(state.fieldData[fieldName].validators, validators))
-        dispatch(actions.updateFieldValidators(fieldName, validators))
+      if (!state.fieldData[fieldName] || !isEqual(state.fieldData[fieldName].validators, validators)) {dispatch(actions.updateFieldValidators(fieldName, validators))}
     },
 
     // Error messages are only returned when the field is touched.
@@ -101,9 +98,9 @@ const ValidationContext = ({
     getRedoCount : () => historyLength > 0
       ? state.dataHistory.length - state.historyIndex - 1
       : null,
-    rewindData : (count=1) => dispatch(actions.rewindData(count)),
+    rewindData  : (count=1) => dispatch(actions.rewindData(count)),
     advanceData : (count=1) => dispatch(actions.advanceData(count)),
-    resetData : () => dispatch(actions.resetData()),
+    resetData   : () => dispatch(actions.resetData()),
 
     resetHistory : () => dispatch(actions.resetHistory()),
 

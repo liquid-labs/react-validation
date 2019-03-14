@@ -56,7 +56,7 @@ describe('ValidationContext/reducer', () => {
   describe(`after data update with 'foo'`, () => {
     let baselineState
     beforeAll(() => {
-      baselineState = reducer(INITIAL_STATE, actions.updateData({ foo: 'foo' }))
+      baselineState = reducer(INITIAL_STATE, actions.updateData({ foo : 'foo' }))
     })
 
     test(`should create field entry 'foo' is untouched and blurred (after change)`, () => {

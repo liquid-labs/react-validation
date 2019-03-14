@@ -14,13 +14,13 @@ const TestChild = ({validators}) => {
   return (
     <div>
       <input aria-label="foo" name="foo"
-        onChange={(event) => vcAPI.updateFieldValue('foo', event.target.value)}
-        onBlur={(event) => vcAPI.blurField('foo')}
-        value={vcAPI.getFieldInputValue('foo')} />
-      <button aria-label="resetButton" onClick={() => vcAPI.resetData() }>reset</button>
-      <button aria-label="rewindButton" onClick={() => vcAPI.rewindData() }>rewind</button>
-      <button aria-label="advanceButton" onClick={() => vcAPI.advanceData() }>advance</button>
-      <button aria-label="resetHistoryButton" onClick={() => vcAPI.resetHistory() }>reset history</button>
+          onChange={(event) => vcAPI.updateFieldValue('foo', event.target.value)}
+          onBlur={(event) => vcAPI.blurField('foo')}
+          value={vcAPI.getFieldInputValue('foo')} />
+      <button aria-label="resetButton" onClick={() => vcAPI.resetData()}>reset</button>
+      <button aria-label="rewindButton" onClick={() => vcAPI.rewindData()}>rewind</button>
+      <button aria-label="advanceButton" onClick={() => vcAPI.advanceData()}>advance</button>
+      <button aria-label="resetHistoryButton" onClick={() => vcAPI.resetHistory()}>reset history</button>
       <span data-testid="isChanged">{vcAPI.isChanged() + ''}</span>
       <span data-testid="isValid">{vcAPI.isValid() + ''}</span>
       <span data-testid="errorMsg">{vcAPI.getFieldErrorMessage('foo') + ''}</span>
@@ -37,7 +37,7 @@ const testValidators = [
 ]
 
 const stdSetup = ({origData, validators, ...props}) => {
-  origData = origData || { foo: 'foo', bar: 'bar' }
+  origData = origData || { foo : 'foo', bar : 'bar' }
   const warningSpy = jest.spyOn(console, 'warn').mockImplementation()
   // Even though 'warningSpy' is new, jest appareantly reconizes the previous
   // mock and preseves it, so we have to clear it.
@@ -68,7 +68,7 @@ const stdSetup = ({origData, validators, ...props}) => {
 
 describe('ValidationContext', () => {
   [['with no initial validators', undefined],
-   ['with initial validators', testValidators]].forEach(([desc, validators]) => {
+    ['with initial validators', testValidators]].forEach(([desc, validators]) => {
     describe(desc, () => {
       let dataEnvelope, fooInput, warningSpy,
         getByTestId, getByLabelText, rerender,
@@ -118,7 +118,8 @@ describe('ValidationContext', () => {
 
         describe('after blur', () => {
           beforeAll(() => {
-            fireEvent.blur(fooInput)}
+            fireEvent.blur(fooInput)
+          }
           )
 
           test("should have 1 undo available", () => {
@@ -220,9 +221,9 @@ describe('ValidationContext', () => {
 
         beforeAll(() => {
           ({ fooInput, dataEnvelope, updateCallback,
-            getByLabelText, getByTestId, rerender }
-            = stdSetup({validators}))
-          dataEnvelope.data = { foo: 'foo3'}
+            getByLabelText, getByTestId, rerender } =
+            stdSetup({validators}))
+          dataEnvelope.data = { foo : 'foo3'}
           rerender(
             <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback}>
               <TestChild validators={validators} />
@@ -253,9 +254,9 @@ describe('ValidationContext', () => {
 
         beforeAll(() => {
           ({ fooInput, dataEnvelope, updateCallback,
-            getByLabelText, getByTestId, rerender }
-            = stdSetup({validators, historyLength: 0}))
-          dataEnvelope.data = { foo: 'foo3'}
+            getByLabelText, getByTestId, rerender } =
+            stdSetup({validators, historyLength : 0}))
+          dataEnvelope.data = { foo : 'foo3'}
           rerender(
             <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback} historyLength={0}>
               <TestChild validators={validators} />
@@ -296,9 +297,9 @@ describe('ValidationContext', () => {
 
         beforeAll(() => {
           ({ fooInput, dataEnvelope, updateCallback,
-            getByLabelText, getByTestId, rerender }
-            = stdSetup({validators}))
-          dataEnvelope.data = { foo: 'foo3'}
+            getByLabelText, getByTestId, rerender } =
+            stdSetup({validators}))
+          dataEnvelope.data = { foo : 'foo3'}
           rerender(
             <ValidationContext data={dataEnvelope.data} updateCallback={updateCallback} resetHistory>
               <TestChild validators={validators} />
@@ -328,8 +329,8 @@ describe('ValidationContext', () => {
 
         beforeAll(() => {
           ({ fooInput, dataEnvelope, updateCallback, warningSpy,
-            getByLabelText, getByTestId, rerender }
-            = stdSetup({validators}))
+            getByLabelText, getByTestId, rerender } =
+            stdSetup({validators}))
           fireEvent.change(fooInput, { target : { value : 'foo2' } })
           fireEvent.blur(fooInput)
           const resetButton = getByLabelText('resetButton')
@@ -351,8 +352,8 @@ describe('ValidationContext', () => {
 
     let fooInput, getByTestId, warningSpy
     beforeAll(() => {
-      ({ fooInput, getByTestId, warningSpy }
-        = stdSetup({ validators: testValidators, origData: { foo: null } }))
+      ({ fooInput, getByTestId, warningSpy } =
+        stdSetup({ validators : testValidators, origData : { foo : null } }))
     })
 
     test('should not produce errors on invalid, untouched fields', () => {
@@ -383,4 +384,4 @@ describe('ValidationContext', () => {
   })
 }) // describe('Validators', ...)
 
-  //  reset of forward history after update, and no reset after non-change change (edit, and then edit back without blur)
+//  reset of forward history after update, and no reset after non-change change (edit, and then edit back without blur)

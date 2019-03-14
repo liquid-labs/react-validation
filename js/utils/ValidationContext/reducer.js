@@ -3,7 +3,7 @@ import { actionTypes } from './actions'
 import isEqual from 'lodash.isequal'
 
 const settings = {
-  historyLength  : 10,
+  historyLength : 10,
 }
 
 const INITIAL_STATE = {
@@ -19,17 +19,17 @@ const INITIAL_STATE = {
       blurredAfterChange: false | true,
     } */
   },
-  lastUpdate   : null
+  lastUpdate : null
 }
 
 /**
  * 'fieldEntryTemplate' is a convenience template for 'fieldData' entries.
  */
 const fieldEntryTemplate = {
-  value      : undefined,
-  validators : [],
-  errorMsg   : null,
-  touched    : false,
+  value              : undefined,
+  validators         : [],
+  errorMsg           : null,
+  touched            : false,
   blurredAfterChange : true,
 }
 
@@ -101,8 +101,7 @@ const reducer = (state, action) => {
 
       newHistoryIndex = state.historyIndex + action.offset
       if (newHistoryIndex < 0) newHistoryIndex = 0
-      if (newHistoryIndex > (state.dataHistory.length - 1))
-        newHistoryIndex = (state.dataHistory.length - 1)
+      if (newHistoryIndex > (state.dataHistory.length - 1)) {newHistoryIndex = (state.dataHistory.length - 1)}
 
       data = state.dataHistory[newHistoryIndex]
     }
@@ -111,14 +110,14 @@ const reducer = (state, action) => {
       origData     : action.type === actionTypes.UPDATE_DATA ? data : state.origData,
       historyIndex : newHistoryIndex,
       fieldData    : Object.entries(data).reduce((newFieldData, [fieldName, value]) => {
-          newFieldData[fieldName] = {
-            ...(state.fieldData[fieldName] || fieldEntryTemplate),
-            value,
-            errorMsg: validateFieldValue(value, state.fieldData[fieldName] && state.fieldData[fieldName].validators)
-          }
-          return newFieldData
-        }, {}),
-      lastUpdate   : action.type === actionTypes.UPDATE_DATA ? data : state.lastUpdate
+        newFieldData[fieldName] = {
+          ...(state.fieldData[fieldName] || fieldEntryTemplate),
+          value,
+          errorMsg : validateFieldValue(value, state.fieldData[fieldName] && state.fieldData[fieldName].validators)
+        }
+        return newFieldData
+      }, {}),
+      lastUpdate : action.type === actionTypes.UPDATE_DATA ? data : state.lastUpdate
     }
     const dataHistory =
       settings.historyLength <= 0
@@ -150,8 +149,8 @@ const reducer = (state, action) => {
           ...state.fieldData,
           [fieldName] : {
             ...fieldEntry,
-            errorMsg : validateFieldValue(value, fieldEntry.validators),
-            value    : value,
+            errorMsg           : validateFieldValue(value, fieldEntry.validators),
+            value              : value,
             blurredAfterChange : false
           }
         }
@@ -169,11 +168,11 @@ const reducer = (state, action) => {
       const updatedData = exportDataFromState(state)
       return {
         ...state,
-        dataHistory : newHistory,
+        dataHistory  : newHistory,
         historyIndex : (newHistory.length > 0 && newHistory.length - 1) || 0,
-        fieldData   : {
+        fieldData    : {
           ...state.fieldData,
-          [fieldName] : { ...fieldEntry, touched : true, blurredAfterChange: true }
+          [fieldName] : { ...fieldEntry, touched : true, blurredAfterChange : true }
         }
       }
     }
