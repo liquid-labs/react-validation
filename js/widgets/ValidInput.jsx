@@ -36,11 +36,18 @@ const ValidInput = withStyles(styles)(({
   ...muiProps}) => {
     // TODO: allow 'noJump' to be set on context (and from there in settings)
   const vcAPI = useValidationContextAPI()
+  if (!vcAPI) {
+    throw new Error(`No validation context API found. Perhaps you are trying to use 'ValidInput' outside a 'ValidationContext.'`)
+  }
 
   const effectivePropName = propName || camelCase(label)
   const touched = vcAPI.isFieldTouched(effectivePropName)
 
   if (value === undefined) value = vcAPI.getFieldInputValue(effectivePropName)
+  else if (!vcAPI.getFieldInputValue(effectivePropName)) {
+    vcAPI.updateFieldValue(effectivePropName, value)
+  }
+  else value = vcAPI.getFieldInputValue(effectivePropName)
 
   useMemo(() => {
     validators =
@@ -57,7 +64,7 @@ const ValidInput = withStyles(styles)(({
   }, [validators])
 
   const onBlur = (event) => {
-    vcAPI.setFieldTouched(effectivePropName)
+    vcAPI.blurField(effectivePropName)
   }
 
   // TODO: verify that only one of onInputChange or onChange is supplied.

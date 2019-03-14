@@ -17,14 +17,16 @@ import {
   INITIAL_STATE,
   objToInputVal,
   reducer,
-  settings } from './ValidationContext/reducer'
-import { actions } from './ValidationContext/actions'
+  settings } from './vclib/reducer'
+import { actions } from './vclib/actions'
 
 const DEFAULT_HISTORY_LENGTH = 10
 
 const VContext = createContext()
 
 const useValidationContextAPI = () => useContext(VContext)
+
+const defaultData = {}
 
 const ValidationContext = ({
   data,
@@ -36,6 +38,7 @@ const ValidationContext = ({
   const [ state, dispatch ] = useReducer(reducer, INITIAL_STATE)
 
   settings.historyLength = historyLength
+  data = data || defaultData
 
   useMemo(() => {
     if (resetHistory) {
@@ -119,7 +122,7 @@ if (process.env.NODE_ENV !== 'production') {
   ValidationContext.propTypes = {
     children : PropTypes.oneOfType(
       [PropTypes.node, PropTypes.func]).isRequired,
-    data           : PropTypes.object.isRequired,
+    data           : PropTypes.object,
     historyLength  : PropTypes.number,
     resetHistory   : PropTypes.bool,
     updateCallback : PropTypes.func.isRequired,

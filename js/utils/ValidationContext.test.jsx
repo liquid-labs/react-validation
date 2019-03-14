@@ -41,12 +41,18 @@ const testValidators = [
   (value) => value === 'bar' ? "No bar!" : null,
 ]
 
-const stdSetup = ({origData, validators, ...props}) => {
-  origData = origData || { foo : 'foo', bar : 'bar' }
+const setupWarningSpy = () => {
   const warningSpy = jest.spyOn(console, 'warn').mockImplementation()
   // Even though 'warningSpy' is new, jest appareantly reconizes the previous
   // mock and preseves it, so we have to clear it.
   warningSpy.mockClear()
+
+  return warningSpy
+}
+
+const stdSetup = ({origData, validators, ...props}) => {
+  origData = origData || { foo : 'foo', bar : 'bar' }
+  const warningSpy = setupWarningSpy()
 
   const dataEnvelope = {}
   dataEnvelope.data = Object.assign({}, origData)
@@ -124,8 +130,7 @@ describe('ValidationContext', () => {
         describe('after blur', () => {
           beforeAll(() => {
             fireEvent.blur(fooInput)
-          }
-          )
+          })
 
           test("should have 1 undo available", () => {
             expect(getByTestId('undoCount').textContent).toBe('1')
@@ -187,6 +192,30 @@ describe('ValidationContext', () => {
 
       test(`should not have triggered warnings`, () => {
         expect(warningSpy).toHaveBeenCalledTimes(0)
+      })
+
+      describe('with no data', () => {
+        let getByLabelText, warningSpy;
+
+        beforeAll(() => {
+          cleanup();
+          warningSpy = setupWarningSpy();
+          const updateCallback = jest.fn();
+          ({getByLabelText} = render(
+            <ValidationContext updateCallback={updateCallback}>
+              <TestChild validators={validators} />
+            </ValidationContext>
+          ))
+        })
+        afterAll(cleanup)
+
+        test("can be created without a 'data' property", () => {
+          expect(getByLabelText('foo').value).toBe('')
+        })
+
+        test(`should not have triggered warnings`, () => {
+          expect(warningSpy).toHaveBeenCalledTimes(0)
+        })
       })
 
       describe('after no-change edit and blur', () => {
