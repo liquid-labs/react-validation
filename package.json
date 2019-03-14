@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/Liquid-Labs/react-validation#readme",
   "devDependencies": {
-    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.15",
+    "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.16",
     "@liquid-labs/mui-extensions": "^1.0.0-prototype.0",
     "@liquid-labs/regex-repo": "^1.0.0-alpha.3",
     "@liquid-labs/validators": "^1.0.0-prototype.2",
