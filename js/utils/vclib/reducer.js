@@ -246,10 +246,12 @@ const reducer = (state, action) => {
       newCV['*'] = (newCV['*'] || []).concat([validatorInfo])
     }
     const newFieldData = { ...state.fieldData }
+    validateContextValues(newFieldData, exportDataFromState(state), newCV)
 
     return {
       ...state,
-      contextValidators : newCV
+      contextValidators : newCV,
+      fieldData : newFieldData
     }
   }
 
