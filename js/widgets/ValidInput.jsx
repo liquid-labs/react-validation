@@ -85,7 +85,7 @@ const ValidInput = withStyles(styles)(({
 
   if (viewOnly) {
     conditionalProps.disabled = true
-    // TODO: I don't like hard coding this, but I'm not sure the best way to reference.
+    // TODO: pull this from the theme
     InputProps.style = { color : 'rgba(0,0,0,0.87)' }
     if (defaultViewValue && !dispValue) {
       conditionalProps.defaultValue = defaultViewValue
