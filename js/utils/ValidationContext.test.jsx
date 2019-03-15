@@ -382,9 +382,8 @@ describe('ValidationContext', () => {
       describe('with context validators added to valid data', () => {
         let fooInput, getByTestId, warningSpy
         beforeAll(() => {
-          cleanup()
-          let debug;
-          ({ fooInput, getByTestId, warningSpy, debug } =
+          cleanup();
+          ({ fooInput, getByTestId, warningSpy } =
             stdSetup({ validators, origData : { foo : 'foo' } }));
           fireEvent.click(getByLabelText('addContextValidatorButton'))
         })
@@ -396,7 +395,7 @@ describe('ValidationContext', () => {
 
         describe('with bad value and field blurred', () => {
           beforeAll(() => {
-            fireEvent.change(fooInput, { target : { value : 'baz' }})
+            fireEvent.change(fooInput, { target : { value : 'baz' } })
             fireEvent.blur(fooInput)
           })
 
@@ -413,9 +412,8 @@ describe('ValidationContext', () => {
       describe('with context validators added to invalid data', () => {
         let fooInput, getByTestId, warningSpy
         beforeAll(() => {
-          cleanup()
-          let debug;
-          ({ fooInput, getByTestId, warningSpy, debug } =
+          cleanup();
+          ({ fooInput, getByTestId, warningSpy } =
             stdSetup({ validators, origData : { foo : 'baz' } }));
           fireEvent.click(getByLabelText('addContextValidatorButton'))
         })

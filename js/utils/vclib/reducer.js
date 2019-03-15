@@ -20,7 +20,7 @@ const INITIAL_STATE = {
     } */
   },
   contextValidators : {},
-  lastUpdate : null
+  lastUpdate        : null
 }
 
 /**
@@ -149,9 +149,9 @@ const reducer = (state, action) => {
     const newData = exportDataFromState(newState)
     Object.keys(newData).forEach((fieldName) => {
       validateContextValues(newState.fieldData,
-                            newData,
-                            newState.contextValidators[fieldName],
-                            newState.contextValidators['*'])
+        newData,
+        newState.contextValidators[fieldName],
+        newState.contextValidators['*'])
     })
 
     const dataHistory =
@@ -188,9 +188,9 @@ const reducer = (state, action) => {
       fieldEntry.blurredAfterChange = false
       const newFieldData = { ...state.fieldData }
       validateContextValues(newFieldData,
-                            exportDataFromState(state),
-                            state.contextValidators[fieldName],
-                            state.contextValidators['*'])
+        exportDataFromState(state),
+        state.contextValidators[fieldName],
+        state.contextValidators['*'])
 
       return {
         ...state,
@@ -255,7 +255,7 @@ const reducer = (state, action) => {
     return {
       ...state,
       contextValidators : newCV,
-      fieldData : newFieldData
+      fieldData         : newFieldData
     }
   }
 
@@ -265,7 +265,7 @@ const reducer = (state, action) => {
       Object.entries(state.contextValidators)
         .reduce((cv, [fieldName, validatorInfo]) => {
           const newVI = validatorInfo.filter(([fN, v]) => v !== validator)
-          if (newList.length > 0) cv[fieldName] = newVI
+          if (newVI.length > 0) cv[fieldName] = newVI
           return cv
         }, {})
     return {
