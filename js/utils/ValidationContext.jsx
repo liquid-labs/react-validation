@@ -59,64 +59,71 @@ const ValidationContext = ({
     }
   }, [state.origData, state.lastUpdate, data])
 
-  const api = useMemo(() => ({
-    getOrigData : () => state.origData,
+  const api = useMemo(() => {
+    const api = {
+      getOrigData : () => state.origData,
 
-    getData            : () => exportDataFromState(state),
-    getFieldInputValue : (fieldName) => {
-      const fieldEntry = state.fieldData[fieldName]
-      // as a UI component tied to 'input' elements, expect empty val as empty
-      // string, not null, etc.
-      return (fieldEntry && objToInputVal(fieldEntry.value)) || ''
-    },
-    updateFieldValue : (fieldName, value) => {
-      if (!state.fieldData[fieldName] || state.fieldData[fieldName].value !== value) {dispatch(actions.updateField(fieldName, value))}
-    },
+      getData            : () => exportDataFromState(state),
+      getFieldInputValue : (fieldName) => {
+        const fieldEntry = state.fieldData[fieldName]
+        // as a UI component tied to 'input' elements, expect empty val as empty
+        // string, not null, etc.
+        return (fieldEntry && objToInputVal(fieldEntry.value)) || ''
+      },
+      updateFieldValue : (fieldName, value) => {
+        if (!state.fieldData[fieldName] || state.fieldData[fieldName].value !== value) {dispatch(actions.updateField(fieldName, value))}
+      },
 
-    isChanged : () => !isEqual(state.origData, exportDataFromState(state)),
-    isValid   : () =>
-      !Object.values(state.fieldData).some((fieldEntry) => fieldEntry.errorMsg),
+      isChanged : () => !isEqual(state.origData, exportDataFromState(state)),
+      isValid   : () =>
+        !Object.values(state.fieldData).some((fieldEntry) => fieldEntry.errorMsg),
 
-    isFieldTouched : (fieldName) =>
-      state.fieldData[fieldName]
-        ? state.fieldData[fieldName].touched
-        : undefined,
-    // We avoid 'onBlur' as that implies 'event' as the argument.
-    blurField : (fieldName) => {
-      if (!state.fieldData[fieldName]
-          || !state.fieldData[fieldName].touched
-          || !state.fieldData[fieldName].blurredAfterChange) {dispatch(actions.blurField(fieldName))}
-    },
+      isFieldTouched : (fieldName) =>
+        state.fieldData[fieldName]
+          ? state.fieldData[fieldName].touched
+          : undefined,
+      // We avoid 'onBlur' as that implies 'event' as the argument.
+      blurField : (fieldName) => {
+        if (!state.fieldData[fieldName]
+            || !state.fieldData[fieldName].touched
+            || !state.fieldData[fieldName].blurredAfterChange) {dispatch(actions.blurField(fieldName))}
+      },
 
-    updateFieldValidators : (fieldName, validators) => {
-      if (!state.fieldData[fieldName] || !isEqual(state.fieldData[fieldName].validators, validators)) {dispatch(actions.updateFieldValidators(fieldName, validators))}
-    },
-    addContextValidator : (fieldName, validator, triggerFields) => {
-      dispatch(actions.addContextValidator(fieldName, validator, triggerFields))
-      return validator
-    },
-    removeContextValidator : (validator) => {
-      dispatch(actions.removeContextValidator(validator))
-    },
+      updateFieldValidators : (fieldName, validators) => {
+        if (!state.fieldData[fieldName] || !isEqual(state.fieldData[fieldName].validators, validators)) {dispatch(actions.updateFieldValidators(fieldName, validators))}
+      },
+      addContextValidator : (fieldName, validator, triggerFields) => {
+        dispatch(actions.addContextValidator(fieldName, validator, triggerFields))
+        return validator
+      },
+      removeContextValidator : (validator) => {
+        dispatch(actions.removeContextValidator(validator))
+      },
 
-    // Error messages are only returned when the field is touched.
-    getFieldErrorMessage : (fieldName) => {
-      const fieldEntry = state.fieldData[fieldName]
-      return (fieldEntry && fieldEntry.touched && fieldEntry.errorMsg) || null
-    },
+      // Error messages are only returned when the field is touched.
+      getFieldErrorMessage : (fieldName) => {
+        const fieldEntry = state.fieldData[fieldName]
+        return (fieldEntry && fieldEntry.touched && fieldEntry.errorMsg) || null
+      },
 
-    getUndoCount : () => historyLength > 0 ? state.historyIndex : null,
-    getRedoCount : () => historyLength > 0
-      ? state.dataHistory.length - state.historyIndex - 1
-      : null,
-    rewindData  : (count=1) => dispatch(actions.rewindData(count)),
-    advanceData : (count=1) => dispatch(actions.advanceData(count)),
-    resetData   : () => dispatch(actions.resetData()),
+      getUndoCount : () => historyLength > 0 ? state.historyIndex : null,
+      getRedoCount : () => historyLength > 0
+        ? state.dataHistory.length - state.historyIndex - 1
+        : null,
+      rewindData  : (count=1) => dispatch(actions.rewindData(count)),
+      advanceData : (count=1) => dispatch(actions.advanceData(count)),
+      resetData   : () => dispatch(actions.resetData()),
 
-    resetHistory : () => dispatch(actions.resetHistory()),
+      resetHistory : () => dispatch(actions.resetHistory()),
 
-    updateCallback : () => updateCallback(exportDataFromState(state))
-  }), [ state, dispatch, historyLength, updateCallback ])
+      updateCallback : () => updateCallback(exportDataFromState(state))
+    }
+    if (updateCallback) {
+      api.updateCallback = () => updateCallback(exportDataFromState(state))
+    }
+
+    return api
+  }, [ state, dispatch, historyLength, updateCallback ])
 
   return (
     <VContext.Provider value={api}>
@@ -132,7 +139,7 @@ if (process.env.NODE_ENV !== 'production') {
     data           : PropTypes.object,
     historyLength  : PropTypes.number,
     resetHistory   : PropTypes.bool,
-    updateCallback : PropTypes.func.isRequired,
+    updateCallback : PropTypes.func,
   }
 }
 
