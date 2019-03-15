@@ -61,7 +61,11 @@ const validateFieldValue = (value, validators) => {
 const validateContextValues = (fieldData, data, ...validatorInfosArr) => {
   validatorInfosArr.forEach((validatorInfos) => {
     if (validatorInfos && validatorInfos.length > 0) {
-      validatorInfos.forEach(([bindFieldName, validator]) => {
+      // wanted to spread the array in the forEach callback, but it was picking
+      // up the letters of the key rather than the string and function.
+      validatorInfos.forEach((vi) => {
+        const bindFieldName = vi[0]
+        const validator = vi[1]
         const fieldEntry = fieldData[bindFieldName] || fieldEntryTemplate
         fieldData[bindFieldName] = fieldEntry
         if (!fieldEntry.errorMsg) fieldEntry.errorMsg = validator(data)
@@ -246,7 +250,7 @@ const reducer = (state, action) => {
       newCV['*'] = (newCV['*'] || []).concat([validatorInfo])
     }
     const newFieldData = { ...state.fieldData }
-    validateContextValues(newFieldData, exportDataFromState(state), newCV)
+    validateContextValues(newFieldData, exportDataFromState(state), [validatorInfo])
 
     return {
       ...state,

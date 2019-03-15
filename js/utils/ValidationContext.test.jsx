@@ -82,8 +82,8 @@ const stdSetup = ({origData, validators, ...props}) => {
 }
 
 describe('ValidationContext', () => {
-  [['with no initial validators', undefined],
-    ['with initial validators', testValidators]].forEach(([desc, validators]) => {
+  [['with no initial field validators', undefined],
+    ['with initial field validators', testValidators]].forEach(([desc, validators]) => {
     describe(desc, () => {
       let dataEnvelope, fooInput, warningSpy,
         getByTestId, getByLabelText,
@@ -379,7 +379,7 @@ describe('ValidationContext', () => {
         })
       })
 
-      describe('with context validators', () => {
+      describe('with context validators added to valid data', () => {
         let fooInput, getByTestId, warningSpy
         beforeAll(() => {
           cleanup()
@@ -389,13 +389,44 @@ describe('ValidationContext', () => {
           fireEvent.click(getByLabelText('addContextValidatorButton'))
         })
 
-        test(`should display initial values`, () => {
+        test(`should display initial values with no error`, () => {
           expect(fooInput.value).toBe('foo')
+          expect(getByTestId('errorMsg').textContent).toBe('null')
         })
 
-        describe('with value triggering context validator and field blurred', () => {
+        describe('with bad value and field blurred', () => {
           beforeAll(() => {
             fireEvent.change(fooInput, { target : { value : 'baz' }})
+            fireEvent.blur(fooInput)
+          })
+
+          test('will generate context error', () => {
+            expect(getByTestId('errorMsg').textContent).toBe('No baz!')
+          })
+        })
+
+        test(`should not have triggered warnings`, () => {
+          expect(warningSpy).toHaveBeenCalledTimes(0)
+        })
+      })
+
+      describe('with context validators added to invalid data', () => {
+        let fooInput, getByTestId, warningSpy
+        beforeAll(() => {
+          cleanup()
+          let debug;
+          ({ fooInput, getByTestId, warningSpy, debug } =
+            stdSetup({ validators, origData : { foo : 'baz' } }));
+          fireEvent.click(getByLabelText('addContextValidatorButton'))
+        })
+
+        test(`should display initial values with no error`, () => {
+          expect(fooInput.value).toBe('baz')
+          expect(getByTestId('errorMsg').textContent).toBe('null')
+        })
+
+        describe('with field blurred', () => {
+          beforeAll(() => {
             fireEvent.blur(fooInput)
           })
 
