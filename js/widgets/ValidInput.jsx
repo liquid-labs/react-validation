@@ -64,6 +64,7 @@ const ValidInput = withStyles(styles)(({
     value = vcAPI.getFieldInputValue(effectivePropName)
   }
   else { // no value in context and no initialValue provided
+    // eslint-disable-next-line no-console
     console.error(`No value in context nor 'initialValue' for 'ValidInput' '${effectivePropName}'.`)
   }
 
