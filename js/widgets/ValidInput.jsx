@@ -25,7 +25,7 @@ const styles = (theme) => ({
 })
 
 const ValidInput = withStyles(styles)(({
-  label, propName, value,
+  label, propName, initialValue,
   select,
   required, validators,
   format, gridded,
@@ -43,11 +43,29 @@ const ValidInput = withStyles(styles)(({
   const effectivePropName = propName || camelCase(label)
   const touched = vcAPI.isFieldTouched(effectivePropName)
 
-  if (value === undefined) value = vcAPI.getFieldInputValue(effectivePropName)
-  else if (!vcAPI.getFieldInputValue(effectivePropName)) {
-    vcAPI.updateFieldValue(effectivePropName, value)
+  if (muiProps.value) {
+    // eslint-disable-next-line no-console
+    console.warn(`A value has been set on field '${effectivePropName}'. You should set 'initialValue' only for 'ValidInput' fields.`)
+    if (initialValue === undefined) {
+      // eslint-disable-next-line no-console
+      console.log(`Converting 'value' to 'initialValue'.`)
+      initialValue = muiProps.value
+    }
+    delete muiProps.value
   }
-  else value = vcAPI.getFieldInputValue(effectivePropName)
+
+  const hasValue = vcAPI.hasFieldValue(effectivePropName)
+  let value;
+  if (!hasValue && initialValue !== undefined) {
+    vcAPI.updateFieldValue(effectivePropName, initialValue)
+    value = initialValue
+  }
+  else if (hasValue) {
+    value = vcAPI.getFieldInputValue(effectivePropName)
+  }
+  else { // no value in context and no initialValue provided
+    console.error(`No value in context nor 'initialValue' for 'ValidInput' '${effectivePropName}'.`)
+  }
 
   useMemo(() => {
     validators =
