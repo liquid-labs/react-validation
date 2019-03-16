@@ -21,6 +21,7 @@ const TestData = () => {
       <span data-testid="errorMsg">{vcAPI.getFieldErrorMessage('foo') + ''}</span>
       <span data-testid="undoCount">{vcAPI.getUndoCount() + ''}</span>
       <span data-testid="redoCount">{vcAPI.getRedoCount() + ''}</span>
+      <span data-testid="historyCount">{vcAPI.getHistoryCount() + ''}</span>
       <span data-testid="origData">{JSON.stringify(vcAPI.getOrigData())}</span>
     </div>
   )
@@ -29,7 +30,7 @@ const TestData = () => {
 describe(`ValidInput`, () => {
   test('should raise an exception if used outside a ValidationContext', () => {
     const errMock = jest.spyOn(console, 'error').mockImplementation()
-    expect(() => { render(<ValidInput value='foo' />); }).toThrow()
+    expect(() => { render(<ValidInput initialValue='foo' />); }).toThrow()
     errMock.mockReset()
   })
 
@@ -42,7 +43,7 @@ describe(`ValidInput`, () => {
         cleanup();
         ({ getByLabelText, getByTestId } = render(
           <ValidationContext>
-            <ValidInput id="foo" label="foo" value="fooVal" />
+            <ValidInput id="foo" label="foo" initialValue="fooVal" />
             <TestData />
           </ValidationContext>
         ))
@@ -69,9 +70,12 @@ describe(`ValidInput`, () => {
         })
 
         describe('after blurring the field', () => {
-          beforeAll(() => fireEvent.blur(fooInput))
-          test("one 'undo' is available", () => {
-            expect(getByTestId('undoCount').textContent).toBe('1')
+          beforeAll(() => { console.log('blur test'); fireEvent.blur(fooInput) })
+
+          test("we point at the the 1 and only history", () => {
+            expect(getByTestId('undoCount').textContent).toBe('0')
+            expect(getByTestId('redoCount').textContent).toBe('0')
+            expect(getByTestId('historyCount').textContent).toBe('1')
           })
         }) // field blur
       }) // update

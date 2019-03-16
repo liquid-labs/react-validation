@@ -31,6 +31,7 @@ const TestChild = ({validators}) => {
       <span data-testid="errorMsg">{vcAPI.getFieldErrorMessage('foo') + ''}</span>
       <span data-testid="undoCount">{vcAPI.getUndoCount() + ''}</span>
       <span data-testid="redoCount">{vcAPI.getRedoCount() + ''}</span>
+      <span data-testid="historyCount">{vcAPI.getHistoryCount() + ''}</span>
       <span data-testid="origData">{JSON.stringify(vcAPI.getOrigData())}</span>
     </div>
   )

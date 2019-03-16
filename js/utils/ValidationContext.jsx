@@ -26,10 +26,8 @@ const VContext = createContext()
 
 const useValidationContextAPI = () => useContext(VContext)
 
-const defaultData = {}
-
 const ValidationContext = ({
-  data,
+  data, // TODO: change to 'initialData'
   updateCallback,
   historyLength=DEFAULT_HISTORY_LENGTH,
   resetHistory=false,
@@ -38,7 +36,6 @@ const ValidationContext = ({
   const [ state, dispatch ] = useReducer(reducer, INITIAL_STATE)
 
   settings.historyLength = historyLength
-  data = data || defaultData
 
   useMemo(() => {
     if (resetHistory) {
@@ -48,9 +45,10 @@ const ValidationContext = ({
 
   // do we have an external data update?
   useMemo(() => {
-    if ((state.origData === undefined && data)
-        || (state.lastUpdate !== data
-            && !isEqual(state.lastUpdate, data))) {
+    if (data !== undefined
+        && ((state.origData === undefined && data)
+            || (state.lastUpdate !== data
+                && !isEqual(state.lastUpdate, data)))) {
       if (state.origData !== undefined && historyLength > 0 && !resetHistory) {
         // eslint-disable-next-line no-console
         console.warn(`Programatic update of data detected. Form history will be reset.`)
@@ -63,7 +61,11 @@ const ValidationContext = ({
     const api = {
       getOrigData : () => state.origData,
 
-      getData            : () => exportDataFromState(state),
+      getData       : () => exportDataFromState(state),
+      hasFieldValue : (fieldName) => {
+        const fieldEntry = state.fieldData[fieldName]
+        return fieldEntry && fieldEntry.value !== undefined
+      },
       getFieldInputValue : (fieldName) => {
         const fieldEntry = state.fieldData[fieldName]
         // as a UI component tied to 'input' elements, expect empty val as empty
@@ -109,6 +111,9 @@ const ValidationContext = ({
       getUndoCount : () => historyLength > 0 ? state.historyIndex : null,
       getRedoCount : () => historyLength > 0
         ? state.dataHistory.length - state.historyIndex - 1
+        : null,
+      getHistoryCount : () => historyLength > 0
+        ? state.dataHistory.length
         : null,
       rewindData  : (count=1) => dispatch(actions.rewindData(count)),
       advanceData : (count=1) => dispatch(actions.advanceData(count)),
