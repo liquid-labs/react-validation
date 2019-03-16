@@ -25,7 +25,7 @@ const styles = (theme) => ({
 })
 
 const ValidInput = withStyles(styles)(({
-  label, propName, initialValue,
+  label, propName, initialValue, noExport,
   select,
   required, validators,
   format, gridded,
@@ -67,6 +67,8 @@ const ValidInput = withStyles(styles)(({
     // eslint-disable-next-line no-console
     console.error(`No value in context nor 'initialValue' for 'ValidInput' '${effectivePropName}'.`)
   }
+
+  if (noExport) vcAPI.excludeFieldFromExport(effectivePropName)
 
   useMemo(() => {
     validators =

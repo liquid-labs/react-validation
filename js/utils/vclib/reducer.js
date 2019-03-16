@@ -33,6 +33,7 @@ const fieldEntryTemplate = Object.freeze({
   errorMsg           : null,
   touched            : false,
   blurredAfterChange : true,
+  excludeFieldFromExport : false,
 })
 
 const objToInputVal = (val) => val === null || val === undefined ? '' : val + ''
@@ -78,7 +79,9 @@ const exportDataFromState = (state) => exportDataFromFieldData(state.fieldData)
 
 const exportDataFromFieldData = (fieldData) => Object.entries(fieldData)
   .reduce((data, [fieldName, fieldEntry]) => {
-    data[fieldName] = fieldEntry.value
+    if (!fieldEntry.excludeFromExport) {
+      data[fieldName] = fieldEntry.value
+    }
     return data
   }, {})
 
@@ -216,6 +219,28 @@ const reducer = (state, action) => {
       }
     }
     else /* field already touched, no change in history */ return state
+  }
+
+  case actionTypes.EXCLUDE_FIELD_FROM_EXPORT : {
+    // TODO: find a reliable way to warn users if this value is changed after
+    // "initialization".
+    const { fieldName } = action
+    // TODO: Note, we are not checking whether the field entry exists first. We
+    // should formalize a rule that the value must be set before validators
+    // (field or context) or exclusion.
+    if (state.fieldData[fieldName].excludeFromExport) return state
+    else {
+      return {
+        ...state,
+        fieldData : Object.entries(state.fieldData).reduce((newFD, [entryName, fieldEntry]) => {
+          if (fieldName === entryName) {
+            newFD[entryName] = { ...fieldEntry, excludeFromExport: true }
+          }
+          else newFD[entryName] = fieldEntry
+          return newFD
+        }, {})
+      }
+    }
   }
 
   case actionTypes.UPDATE_FIELD_VALIDATORS : {

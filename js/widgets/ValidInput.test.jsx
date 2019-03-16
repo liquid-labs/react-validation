@@ -23,6 +23,7 @@ const TestData = () => {
       <span data-testid="redoCount">{vcAPI.getRedoCount() + ''}</span>
       <span data-testid="historyCount">{vcAPI.getHistoryCount() + ''}</span>
       <span data-testid="origData">{JSON.stringify(vcAPI.getOrigData())}</span>
+      <span data-testid="exportData">{JSON.stringify(vcAPI.getData())}</span>
     </div>
   )
 }
@@ -83,7 +84,45 @@ describe(`ValidInput`, () => {
           })
         }) // field blur
       }) // update
-    }) // value as a property sequence
+    }) // value as a property / no context data sequence
+
+    describe(`'noExport' inputs`, () => {
+      describe(`receiving value from the context data`, () => {
+        let getByTestId
+        beforeAll(() => {
+          cleanup();
+          ({ getByTestId } = render(
+            <ValidationContext data={{ foo : 'fooVal', bar : 'bar' }}>
+              <ValidInput id="foo" label="foo" noExport />
+              <ValidInput id="bar" label="bar" />
+              <TestData />
+            </ValidationContext>
+          ))
+        })
+
+        test('will be excluded from the data export', () => {
+          expect(getByTestId('exportData').textContent).toBe(JSON.stringify({ bar: 'bar' }))
+        })
+      })
+
+      describe('with value set from the input', () => {
+        let getByTestId
+        beforeAll(() => {
+          cleanup();
+          ({ getByTestId } = render(
+            <ValidationContext>
+              <ValidInput id="foo" label="foo" initialValue="fooVal" noExport />
+              <ValidInput id="bar" label="bar" initialValue="bar" />
+              <TestData />
+            </ValidationContext>
+          ))
+        })
+
+        test('will be excluded from the data export', () => {
+          expect(getByTestId('exportData').textContent).toBe(JSON.stringify({ bar: 'bar' }))
+        })
+      })
+    })
 
     describe('when gridded', () => {
       let container

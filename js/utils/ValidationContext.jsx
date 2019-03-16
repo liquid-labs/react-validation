@@ -62,6 +62,7 @@ const ValidationContext = ({
       getOrigData : () => state.origData,
 
       getData       : () => exportDataFromState(state),
+
       hasFieldValue : (fieldName) => {
         const fieldEntry = state.fieldData[fieldName]
         return fieldEntry && fieldEntry.value !== undefined
@@ -75,6 +76,8 @@ const ValidationContext = ({
       updateFieldValue : (fieldName, value) => {
         if (!state.fieldData[fieldName] || state.fieldData[fieldName].value !== value) {dispatch(actions.updateField(fieldName, value))}
       },
+      excludeFieldFromExport : (fieldName) =>
+        dispatch(actions.excludeFieldFromExport(fieldName)),
 
       isChanged : () => !isEqual(state.origData, exportDataFromState(state)),
       isValid   : () =>

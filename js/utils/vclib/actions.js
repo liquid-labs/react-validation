@@ -3,12 +3,13 @@ const actionTypes = {
   UPDATE_FIELD_VALUE       : 1,
   BLUR_FIELD               : 2,
   UPDATE_FIELD_VALIDATORS  : 3,
-  ADD_CONTEXT_VALIDATOR    : 4,
-  REMOVE_CONTEXT_VALIDATOR : 5,
-  OFFSET_DATA              : 6,
-  RESET_DATA               : 7,
-  RESET_HISTORY            : 8,
-  INITIAL_SNAPSHOT         : 9,
+  EXCLUDE_FIELD_FROM_EXPORT : 4,
+  ADD_CONTEXT_VALIDATOR    : 5,
+  REMOVE_CONTEXT_VALIDATOR : 6,
+  OFFSET_DATA              : 7,
+  RESET_DATA               : 8,
+  RESET_HISTORY            : 9,
+  INITIAL_SNAPSHOT         : 10,
 }
 
 const actions = {
@@ -17,9 +18,11 @@ const actions = {
 
     ({ type : actionTypes.UPDATE_FIELD_VALUE, fieldName, value }),
   blurField : (fieldName) => ({ type : actionTypes.BLUR_FIELD, fieldName }),
-
   updateFieldValidators : (fieldName, validators) =>
     ({ type : actionTypes.UPDATE_FIELD_VALIDATORS, fieldName, validators }),
+  excludeFieldFromExport : (fieldName) =>
+    ({ type : actionTypes.EXCLUDE_FIELD_FROM_EXPORT, fieldName }),
+
   addContextValidator : (fieldName, validator, triggerFields) =>
     ({ type : actionTypes.ADD_CONTEXT_VALIDATOR,
       fieldName, validator, triggerFields }),
