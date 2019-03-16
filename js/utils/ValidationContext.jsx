@@ -7,7 +7,7 @@
  * 'historyLength' is '0' or 'resetHistory' is 'true'. None of this should be
  * necessary for general usage, however.
  */
-import React, { createContext, useContext, useMemo, useReducer } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react'
 import PropTypes from 'prop-types'
 
 import isEqual from 'lodash.isequal'
@@ -129,6 +129,10 @@ const ValidationContext = ({
 
     return api
   }, [ state, dispatch, historyLength, updateCallback ])
+
+  useEffect(() => {
+    if (data === undefined) dispatch(actions.initialSnapshot())
+  }, [])
 
   return (
     <VContext.Provider value={api}>

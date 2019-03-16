@@ -58,6 +58,10 @@ describe(`ValidInput`, () => {
         expect(getByTestId('fooValue').textContent).toBe('fooVal')
       })
 
+      test(`snapshot 'origData' after initial render`, () => {
+        expect(getByTestId('origData').textContent).toEqual(JSON.stringify({foo:'fooVal'}))
+      })
+
       describe('after updating the value', () => {
         beforeAll(() => { fireEvent.change(fooInput, { target : { value : 'foo2' } }) })
 

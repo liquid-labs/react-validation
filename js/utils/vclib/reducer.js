@@ -282,6 +282,22 @@ const reducer = (state, action) => {
     else return state
   }
 
+  case actionTypes.INITIAL_SNAPSHOT : {
+    if (state.origData === undefined) {
+      const origData = exportDataFromFieldData(state.fieldData)
+      return {
+        ...state,
+        origData,
+        lastUpdate : origData
+      }
+    }
+    else {
+      // eslint-disable-next-line no-console
+      console.warn(`Unexpected 'initial snapshot' invoked with original data in palce.`)
+      return state
+    }
+  }
+
   // see note on 'totalReset' in acitons.js
   // case actionTypes.TOTAL_RESET : return INITIAL_STATE
   default : throw new Error(`Unrecognized action type: '${action.type}'.`)

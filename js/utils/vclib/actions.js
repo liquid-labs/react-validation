@@ -8,7 +8,7 @@ const actionTypes = {
   OFFSET_DATA              : 6,
   RESET_DATA               : 7,
   RESET_HISTORY            : 8,
-  TOTAL_RESET              : 9,
+  INITIAL_SNAPSHOT         : 9,
 }
 
 const actions = {
@@ -30,6 +30,8 @@ const actions = {
   advanceData  : (offset) => ({ type : actionTypes.OFFSET_DATA, offset }),
   resetData    : () => ({ type : actionTypes.RESET_DATA }),
   resetHistory : () => ({ type : actionTypes.RESET_HISTORY }),
+
+  initialSnapshot : () => ({ type : actionTypes.INITIAL_SNAPSHOT }),
 
   // TODO: in previous implementation, we used something like this, but now I'm
   // thinking it's superfluous
