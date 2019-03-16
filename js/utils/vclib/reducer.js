@@ -6,11 +6,12 @@ const settings = {
   historyLength : 10,
 }
 
-const INITIAL_STATE = {
+// TODO: abstracte 'deepFreeze' (from model) and use it here.
+const INITIAL_STATE = Object.freeze({
   origData     : undefined,
-  dataHistory  : [],
+  dataHistory  : Object.freeze([]),
   historyIndex : 0,
-  fieldData    : { /*
+  fieldData    : Object.freeze({ /*
     fieldName : {
       value: <some primitive value>,
       validators: [ array of validator functions ]
@@ -18,21 +19,21 @@ const INITIAL_STATE = {
       touched: false | true,
       blurredAfterChange: false | true,
     } */
-  },
-  contextValidators : {},
+  }),
+  contextValidators : Object.freeze({}),
   lastUpdate        : null
-}
+})
 
 /**
  * 'fieldEntryTemplate' is a convenience template for 'fieldData' entries.
  */
-const fieldEntryTemplate = {
+const fieldEntryTemplate = Object.freeze({
   value              : undefined,
   validators         : [],
   errorMsg           : null,
   touched            : false,
   blurredAfterChange : true,
-}
+})
 
 const objToInputVal = (val) => val === null || val === undefined ? '' : val + ''
 
@@ -66,7 +67,7 @@ const validateContextValues = (fieldData, data, ...validatorInfosArr) => {
       validatorInfos.forEach((vi) => {
         const bindFieldName = vi[0]
         const validator = vi[1]
-        const fieldEntry = fieldData[bindFieldName] || fieldEntryTemplate
+        const fieldEntry = fieldData[bindFieldName] || { ...fieldEntryTemplate }
         fieldData[bindFieldName] = fieldEntry
         if (!fieldEntry.errorMsg) fieldEntry.errorMsg = validator(data)
       })
@@ -97,6 +98,7 @@ const processHistoryUpdate = (state) => {
     // else
     const currData = exportDataFromState(state)
     if (isEqual(dataHistory[dataHistory.length - 1], currData)) {
+      // collapse equivalent tail history
       return dataHistory
     }
     else {
@@ -156,11 +158,11 @@ const reducer = (state, action) => {
 
     const dataHistory =
       settings.historyLength <= 0
-        ? 0
+        ? state.dataHistory // no change, still nothing
         : action.type === actionTypes.OFFSET_DATA
-          ? state.dataHistory // then no change
+          ? state.dataHistory // no change, something
           : action.type === actionTypes.RESET_DATA
-            ? processHistoryUpdate(newState)
+            ? processHistoryUpdate(newState) // add history normally
             : [ data ] // then it's 'UPDATE_DATA'
     newState.dataHistory = dataHistory
     if (action.type === actionTypes.RESET_DATA
@@ -176,17 +178,16 @@ const reducer = (state, action) => {
 
     if (value === undefined) throw new Error(`Value (for '${fieldName}') cannot be 'undefined'.`)
 
-    const fieldEntry = state.fieldData[fieldName] || fieldEntryTemplate
-    // note template 'value' is 'undefined', and per above check, 'value' can
-    // never be 'undefined', so this is always run when creating a new field.
-    if (fieldEntry.value !== value) {
-      // We're modifying state directly here for efficiency; we will replace
-      // state when we finish.
-      state.fieldData[fieldName] = fieldEntry
+    if (state.fieldData[fieldName] === undefined
+        || state.fieldData[fieldName].value !== value) {
+      const newFieldData = { ...state.fieldData }
+      const fieldEntry = { ...(state.fieldData[fieldName] || fieldEntryTemplate) }
+      newFieldData[fieldName] = fieldEntry
+
       fieldEntry.errorMsg = validateFieldValue(value, fieldEntry.validators)
       fieldEntry.value = value
       fieldEntry.blurredAfterChange = false
-      const newFieldData = { ...state.fieldData }
+
       validateContextValues(newFieldData,
         exportDataFromState(state),
         state.contextValidators[fieldName],
@@ -202,8 +203,11 @@ const reducer = (state, action) => {
 
   case actionTypes.BLUR_FIELD : {
     const { fieldName } = action
-    const fieldEntry = state.fieldData[fieldName] || fieldEntryTemplate
+    // This should not be possible outside of programatic flim-flammery.
+    const fieldEntry = state.fieldData[fieldName] || { ...fieldEntryTemplate }
+    console.log('blurField state', state)
     if (!fieldEntry.touched || !fieldEntry.blurredAfterChange) {
+      console.log('doing it')
       const newHistory = processHistoryUpdate(state)
       return {
         ...state,
@@ -220,7 +224,7 @@ const reducer = (state, action) => {
 
   case actionTypes.UPDATE_FIELD_VALIDATORS : {
     const { fieldName, validators=[] } = action
-    const fieldEntry = state.fieldData[fieldName] || fieldEntryTemplate
+    const fieldEntry = state.fieldData[fieldName] || { ...fieldEntryTemplate }
     if (!isEqual(fieldEntry.validators, validators)) {
       return {
         ...state,
