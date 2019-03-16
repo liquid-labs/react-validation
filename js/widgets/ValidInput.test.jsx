@@ -70,7 +70,7 @@ describe(`ValidInput`, () => {
         })
 
         describe('after blurring the field', () => {
-          beforeAll(() => { console.log('blur test'); fireEvent.blur(fooInput) })
+          beforeAll(() => fireEvent.blur(fooInput))
 
           test("we point at the the 1 and only history", () => {
             expect(getByTestId('undoCount').textContent).toBe('0')
