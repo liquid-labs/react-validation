@@ -309,7 +309,6 @@ const reducer = (state, action) => {
   }
 
   case actionTypes.INITIAL_SNAPSHOT : {
-    console.log('reducer initial snapshot', state.origData, state.fieldData, exportDataFromFieldData(state.fieldData))
     if (state.origData === undefined) {
       const origData = exportDataFromFieldData(state.fieldData)
       return {
