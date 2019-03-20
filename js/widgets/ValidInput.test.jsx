@@ -1,3 +1,9 @@
+/**
+ * Tests needed:
+ * - When data is initialized by the ValidInputs and they are not initially
+ *   rendered (as in within a 'Waiter'), we defer the initial snapshot until we
+ *   see "something". Need to test this case.
+ */
 /* global beforeAll describe expect jest test */
 import React from 'react'
 
@@ -101,7 +107,7 @@ describe(`ValidInput`, () => {
         })
 
         test('will be excluded from the data export', () => {
-          expect(getByTestId('exportData').textContent).toBe(JSON.stringify({ bar: 'bar' }))
+          expect(getByTestId('exportData').textContent).toBe(JSON.stringify({ bar : 'bar' }))
         })
       })
 
@@ -119,7 +125,7 @@ describe(`ValidInput`, () => {
         })
 
         test('will be excluded from the data export', () => {
-          expect(getByTestId('exportData').textContent).toBe(JSON.stringify({ bar: 'bar' }))
+          expect(getByTestId('exportData').textContent).toBe(JSON.stringify({ bar : 'bar' }))
         })
       })
     })

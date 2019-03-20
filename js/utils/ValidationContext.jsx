@@ -13,7 +13,7 @@ import PropTypes from 'prop-types'
 import isEqual from 'lodash.isequal'
 
 import {
-  exportDataFromState,
+  exportDataFromFieldData,
   INITIAL_STATE,
   objToInputVal,
   reducer,
@@ -61,7 +61,7 @@ const ValidationContext = ({
     const api = {
       getOrigData : () => state.origData,
 
-      getData       : () => exportDataFromState(state),
+      getData : () => exportDataFromFieldData(state.fieldData),
 
       hasFieldValue : (fieldName) => {
         const fieldEntry = state.fieldData[fieldName]
@@ -79,8 +79,9 @@ const ValidationContext = ({
       excludeFieldFromExport : (fieldName) =>
         dispatch(actions.excludeFieldFromExport(fieldName)),
 
-      isChanged : () => !isEqual(state.origData, exportDataFromState(state)),
-      isValid   : () =>
+      isChanged : () =>
+        !isEqual(state.origData, exportDataFromFieldData(state.fieldData)),
+      isValid : () =>
         !Object.values(state.fieldData).some((fieldEntry) => fieldEntry.errorMsg),
 
       isFieldTouched : (fieldName) =>
@@ -124,18 +125,23 @@ const ValidationContext = ({
 
       resetHistory : () => dispatch(actions.resetHistory()),
 
-      updateCallback : () => updateCallback(exportDataFromState(state))
+      updateCallback : () =>
+        updateCallback(exportDataFromFieldData(state.fieldData))
     }
     if (updateCallback) {
-      api.updateCallback = () => updateCallback(exportDataFromState(state))
+      api.updateCallback = () =>
+        updateCallback(exportDataFromFieldData(state.fieldData))
     }
 
     return api
   }, [ state, dispatch, historyLength, updateCallback ])
 
   useEffect(() => {
-    if (data === undefined) dispatch(actions.initialSnapshot())
-  }, [])
+    if (data === undefined && state.origData === undefined
+        && Object.keys(exportDataFromFieldData(state.fieldData)).length > 0) {
+      dispatch(actions.initialSnapshot())
+    }
+  }, [state.fieldData])
 
   return (
     <VContext.Provider value={api}>

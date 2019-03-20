@@ -28,11 +28,11 @@ const INITIAL_STATE = Object.freeze({
  * 'fieldEntryTemplate' is a convenience template for 'fieldData' entries.
  */
 const fieldEntryTemplate = Object.freeze({
-  value              : undefined,
-  validators         : [],
-  errorMsg           : null,
-  touched            : false,
-  blurredAfterChange : true,
+  value                  : undefined,
+  validators             : [],
+  errorMsg               : null,
+  touched                : false,
+  blurredAfterChange     : true,
   excludeFieldFromExport : false,
 })
 
@@ -73,10 +73,8 @@ const validateContextValues = (fieldData, data, ...validatorInfosArr) => {
 }
 
 /**
- * 'exportDataFromState' reduces the 'state'
+ * 'exportDataFromState' reduces 'fieldData' to a name-value data object.
  */
-const exportDataFromState = (state) => exportDataFromFieldData(state.fieldData)
-
 const exportDataFromFieldData = (fieldData) => Object.entries(fieldData)
   .reduce((data, [fieldName, fieldEntry]) => {
     if (!fieldEntry.excludeFromExport) {
@@ -95,9 +93,9 @@ const exportDataFromFieldData = (fieldData) => Object.entries(fieldData)
 const processHistoryUpdate = (state) => {
   const { dataHistory } = state
   if (settings.historyLength > 0) {
-    if (dataHistory.length === 0) return [ exportDataFromState(state) ]
+    if (dataHistory.length === 0) {return [ exportDataFromFieldData(state.fieldData) ]}
     // else
-    const currData = exportDataFromState(state)
+    const currData = exportDataFromFieldData(state.fieldData)
     if (isEqual(dataHistory[dataHistory.length - 1], currData)) {
       // collapse equivalent tail history
       return dataHistory
@@ -149,7 +147,7 @@ const reducer = (state, action) => {
       }, {}),
       lastUpdate : action.type === actionTypes.UPDATE_DATA ? data : state.lastUpdate
     }
-    const newData = exportDataFromState(newState)
+    const newData = exportDataFromFieldData(newState.fieldData)
     Object.keys(newData).forEach((fieldName) => {
       validateContextValues(newState.fieldData,
         newData,
@@ -234,7 +232,7 @@ const reducer = (state, action) => {
         ...state,
         fieldData : Object.entries(state.fieldData).reduce((newFD, [entryName, fieldEntry]) => {
           if (fieldName === entryName) {
-            newFD[entryName] = { ...fieldEntry, excludeFromExport: true }
+            newFD[entryName] = { ...fieldEntry, excludeFromExport : true }
           }
           else newFD[entryName] = fieldEntry
           return newFD
@@ -275,7 +273,10 @@ const reducer = (state, action) => {
       newCV['*'] = (newCV['*'] || []).concat([validatorInfo])
     }
     const newFieldData = { ...state.fieldData }
-    validateContextValues(newFieldData, exportDataFromState(state), [validatorInfo])
+    validateContextValues(
+      newFieldData,
+      exportDataFromFieldData(state.fieldData),
+      [validatorInfo])
 
     return {
       ...state,
@@ -308,6 +309,7 @@ const reducer = (state, action) => {
   }
 
   case actionTypes.INITIAL_SNAPSHOT : {
+    console.log('reducer initial snapshot', state.origData, state.fieldData, exportDataFromFieldData(state.fieldData))
     if (state.origData === undefined) {
       const origData = exportDataFromFieldData(state.fieldData)
       return {
@@ -329,4 +331,4 @@ const reducer = (state, action) => {
   } // switch (action.type)
 } // reducer
 
-export { exportDataFromState, INITIAL_STATE, objToInputVal, reducer, settings }
+export { exportDataFromFieldData, INITIAL_STATE, objToInputVal, reducer, settings }
