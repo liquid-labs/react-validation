@@ -12,6 +12,7 @@ import { withStyles } from '@material-ui/core/styles'
 import camelCase from 'lodash.camelcase'
 import classNames from 'classnames'
 import { isRequired } from '@liquid-labs/validators'
+import { routes } from '@liquid-labs/catalyst-core-api'
 
 const styles = (theme) => ({
   iconAdornmentFix : {
@@ -103,8 +104,9 @@ const ValidInput = withStyles(styles)(({
 
   const conditionalProps = {}
   const InputProps = { ...muiProps.InputProps, onBlur : onBlur }
+  const view = viewOnly || routes.getRenderMode() === 'view'
 
-  if (viewOnly) {
+  if (view) {
     conditionalProps.disabled = true
     // TODO: pull this from the theme
     InputProps.style = { color : 'rgba(0,0,0,0.87)' }
