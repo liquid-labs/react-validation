@@ -1,7 +1,13 @@
 /**
  * ValidationContext is intended primarily as a 'form wrapper'. Once the initial
- * data is supplied, the form will manage the data internally which is finally
- * exported out when done (as in on submit) via the 'updateCallback'.
+ * data is supplied, the form will manage the data internally. The updated data
+ * may be accessed via the `useValidationContextAPI.getData()` or by supplying
+ * an `updateCallback` function.
+ *
+ * The `updateCallback` is invoked when changes are "committed" by blurring a
+ * field. Thus, intermediate changes as the a user types are not reflected
+ * through `updateCallback`. If you need to process data as it changes, attach
+ * an `onChange` function to the individual `ValidInput` components.
  *
  * The 'data' may be changed externally, though this will cause a warning unless
  * 'historyLength' is '0' or 'resetHistory' is 'true'. None of this should be
