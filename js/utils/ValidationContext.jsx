@@ -74,10 +74,21 @@ const ValidationContext = ({
         return (fieldEntry && objToInputVal(fieldEntry.value)) || ''
       },
       updateFieldValue : (fieldName, value) => {
-        if (!state.fieldData[fieldName] || state.fieldData[fieldName].value !== value) {dispatch(actions.updateField(fieldName, value))}
+        if (!state.fieldData[fieldName] || state.fieldData[fieldName].value !== value)
+          dispatch(actions.updateField(fieldName, value))
       },
       excludeFieldFromExport : (fieldName) =>
         dispatch(actions.excludeFieldFromExport(fieldName)),
+      updateMatchingFields : (obj) => {
+        Object.entries(obj).forEach(([key, value]) => {
+          // we only update matching, 'plain' values
+          if (state.fieldData[key]
+              && typeof value !== 'object'
+              && state.fieldData[key].value !== value) {
+              dispatch(actions.updateField(key, value))
+          }
+        })
+      },
 
       isChanged : () =>
         !isEqual(state.origData, exportDataFromFieldData(state.fieldData)),
