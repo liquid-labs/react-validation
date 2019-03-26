@@ -1,3 +1,6 @@
-.catalyst
-node_modules/
-dist/
+/node_modules/
+/dist/
+/test-staging/
+/coverage/
+/.yalc
+/yalc.lock
