@@ -30,10 +30,10 @@
   },
   "homepage": "https://github.com/Liquid-Labs/react-validation#readme",
   "devDependencies": {
-    "@liquid-labs/catalyst-core-api": "^1.0.0-prototype.4",
     "@liquid-labs/catalyst-scripts": "^1.0.0-alpha.16",
     "@liquid-labs/mui-extensions": "^1.0.0-prototype.0",
     "@liquid-labs/regex-repo": "^1.0.0-alpha.3",
+    "@liquid-labs/restful-paths": "^1.0.0-prototype.2",
     "@liquid-labs/validators": "^1.0.0-prototype.2",
     "@material-ui/core": "^3.9.2",
     "@material-ui/icons": "^3.0.2",
@@ -42,12 +42,13 @@
     "lodash.isequal": "^4.5.0",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
-    "react-testing-library": "^6.0.0"
+    "react-testing-library": "^6.0.0",
+    "rollup-plugin-peer-deps-external": "^2.2.0"
   },
   "peerDependencies": {
-    "@liquid-labs/catalyst-core-api": "^1.0.0-prototype.4",
     "@liquid-labs/mui-extensions": "^1.0.0-prototype.0",
     "@liquid-labs/regex-repo": "^1.0.0-alpha.3",
+    "@liquid-labs/restful-paths": "^1.0.0-prototype.0",
     "@liquid-labs/validators": "^1.0.0-prototype.2",
     "@material-ui/core": "1.x || 3.x",
     "@material-ui/icons": "^3.0.2",
@@ -68,5 +69,7 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "uninstall": "0.0.0"
+  }
 }
