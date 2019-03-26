@@ -13,7 +13,8 @@
     "lint-fix": "catalyst-scripts lint-fix",
     "prepare": "npm run build && npm run lint",
     "pretest": "catalyst-scripts pretest",
-    "test": "catalyst-scripts test"
+    "test": "catalyst-scripts test",
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
