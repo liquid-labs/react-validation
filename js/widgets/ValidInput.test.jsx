@@ -7,13 +7,13 @@
 /* global beforeAll describe expect jest test */
 import React from 'react'
 
-import { ValidationContext, useValidationContextAPI } from '../utils/ValidationContext'
+import { ValidationContext, useValidationAPI } from '../utils/ValidationContext'
 import { ValidInput } from './ValidInput'
 
 import { cleanup, fireEvent, render } from 'react-testing-library'
 
 const TestData = () => {
-  const vcAPI = useValidationContextAPI()
+  const vcAPI = useValidationAPI()
 
   return (
     <div>
@@ -35,6 +35,8 @@ const TestData = () => {
 }
 
 describe(`ValidInput`, () => {
+  beforeAll(() => window.history.pushState({}, '', '/foos/edit/'))
+  
   test('should raise an exception if used outside a ValidationContext', () => {
     const errMock = jest.spyOn(console, 'error').mockImplementation()
     expect(() => { render(<ValidInput initialValue='foo' />); }).toThrow()

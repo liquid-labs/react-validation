@@ -2,13 +2,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import { ValidationContext, useValidationContextAPI } from './ValidationContext'
+import { ValidationContext, useValidationAPI } from './ValidationContext'
 
 import { cleanup, fireEvent, render } from 'react-testing-library'
 import isEqual from 'lodash.isequal'
 
 const TestChild = ({validators}) => {
-  const vcAPI = useValidationContextAPI()
+  const vcAPI = useValidationAPI()
   if (validators) {
     vcAPI.updateFieldValidators('foo', validators)
   }

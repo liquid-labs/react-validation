@@ -1,8 +1,8 @@
 /**
  * ValidationContext is intended primarily as a 'form wrapper'. Once the initial
  * data is supplied, the form will manage the data internally. The updated data
- * may be accessed via the `useValidationContextAPI.getData()` or by supplying
- * an `updateCallback` function.
+ * may be accessed via the `useValidationAPI.getData()` or by supplying an
+ * `updateCallback` function.
  *
  * The `updateCallback` is invoked when changes are "committed" by blurring a
  * field. Thus, intermediate changes as the a user types are not reflected
@@ -30,7 +30,7 @@ const DEFAULT_HISTORY_LENGTH = 10
 
 const VContext = createContext()
 
-const useValidationContextAPI = () => useContext(VContext)
+const useValidationAPI = () => useContext(VContext)
 
 const ValidationContext = ({
   data, // TODO: change to 'initialData'
@@ -59,7 +59,7 @@ const ValidationContext = ({
         // eslint-disable-next-line no-console
         console.warn(`Programatic update of data detected. Form history will be reset.`)
       }
-      dispatch(actions.updateData(data))
+      dispatch(actions.updateData(data, updateCallback))
     }
   }, [state.origData, state.lastUpdate, data])
 
@@ -80,8 +80,7 @@ const ValidationContext = ({
         return (fieldEntry && objToInputVal(fieldEntry.value)) || ''
       },
       updateFieldValue : (fieldName, value) => {
-        if (!state.fieldData[fieldName] || state.fieldData[fieldName].value !== value)
-          dispatch(actions.updateField(fieldName, value))
+        if (!state.fieldData[fieldName] || state.fieldData[fieldName].value !== value) {dispatch(actions.updateField(fieldName, value))}
       },
       excludeFieldFromExport : (fieldName) =>
         dispatch(actions.excludeFieldFromExport(fieldName)),
@@ -91,7 +90,7 @@ const ValidationContext = ({
           if (state.fieldData[key]
               && typeof value !== 'object'
               && state.fieldData[key].value !== value) {
-              dispatch(actions.updateField(key, value))
+            dispatch(actions.updateField(key, value))
           }
         })
       },
@@ -109,7 +108,9 @@ const ValidationContext = ({
       blurField : (fieldName) => {
         if (!state.fieldData[fieldName]
             || !state.fieldData[fieldName].touched
-            || !state.fieldData[fieldName].blurredAfterChange) {dispatch(actions.blurField(fieldName))}
+            || !state.fieldData[fieldName].blurredAfterChange) {
+          dispatch(actions.blurField(fieldName, updateCallback))
+        }
       },
 
       updateFieldValidators : (fieldName, validators) => {
@@ -136,18 +137,13 @@ const ValidationContext = ({
       getHistoryCount : () => historyLength > 0
         ? state.dataHistory.length
         : null,
-      rewindData  : (count=1) => dispatch(actions.rewindData(count)),
-      advanceData : (count=1) => dispatch(actions.advanceData(count)),
-      resetData   : () => dispatch(actions.resetData()),
+      rewindData : (count=1) =>
+        dispatch(actions.rewindData(count, updateCallback)),
+      advanceData : (count=1) =>
+        dispatch(actions.advanceData(count, updateCallback)),
+      resetData : () => dispatch(actions.resetData(updateCallback)),
 
       resetHistory : () => dispatch(actions.resetHistory()),
-
-      updateCallback : () =>
-        updateCallback(exportDataFromFieldData(state.fieldData))
-    }
-    if (updateCallback) {
-      api.updateCallback = () =>
-        updateCallback(exportDataFromFieldData(state.fieldData))
     }
 
     return api
@@ -178,4 +174,4 @@ if (process.env.NODE_ENV !== 'production') {
   }
 }
 
-export { ValidationContext, useValidationContextAPI }
+export { ValidationContext, useValidationAPI }

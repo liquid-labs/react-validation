@@ -6,13 +6,13 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import MenuItem from '@material-ui/core/MenuItem'
 import TextField from '@material-ui/core/TextField'
 
-import { useValidationContextAPI } from '../utils/ValidationContext'
+import { useValidationAPI } from '../utils/ValidationContext'
 import { withStyles } from '@material-ui/core/styles'
 
 import camelCase from 'lodash.camelcase'
 import classNames from 'classnames'
 import { isRequired } from '@liquid-labs/validators'
-import { routes } from '@liquid-labs/catalyst-core-api'
+import { extractPathInfo } from '@liquid-labs/restful-paths'
 
 const styles = (theme) => ({
   iconAdornmentFix : {
@@ -36,13 +36,13 @@ const ValidInput = withStyles(styles)(({
   noJump, help, className, classes,
   ...muiProps}) => {
   // TODO: allow 'noJump' to be set on context (and from there in settings)
-  const vcAPI = useValidationContextAPI()
-  if (!vcAPI) {
+  const validationAPI = useValidationAPI()
+  if (!validationAPI) {
     throw new Error(`No validation context API found. Perhaps you are trying to use 'ValidInput' outside a 'ValidationContext.'`)
   }
 
   const effectivePropName = propName || camelCase(label)
-  const touched = vcAPI.isFieldTouched(effectivePropName)
+  const touched = validationAPI.isFieldTouched(effectivePropName)
 
   if (muiProps.value) {
     // eslint-disable-next-line no-console
@@ -55,21 +55,21 @@ const ValidInput = withStyles(styles)(({
     delete muiProps.value
   }
 
-  const hasValue = vcAPI.hasFieldValue(effectivePropName)
+  const hasValue = validationAPI.hasFieldValue(effectivePropName)
   let value;
   if (!hasValue && initialValue !== undefined) {
-    vcAPI.updateFieldValue(effectivePropName, initialValue)
+    validationAPI.updateFieldValue(effectivePropName, initialValue)
     value = initialValue
   }
   else if (hasValue) {
-    value = vcAPI.getFieldInputValue(effectivePropName)
+    value = validationAPI.getFieldInputValue(effectivePropName)
   }
   else { // no value in context and no initialValue provided
     // eslint-disable-next-line no-console
     console.error(`No value in context nor 'initialValue' for 'ValidInput' '${effectivePropName}'.`)
   }
 
-  if (noExport) vcAPI.excludeFieldFromExport(effectivePropName)
+  if (noExport) validationAPI.excludeFieldFromExport(effectivePropName)
 
   useMemo(() => {
     validators =
@@ -81,12 +81,12 @@ const ValidInput = withStyles(styles)(({
       validators.unshift(isRequired)
     }
     if (validators.length > 0) {
-      vcAPI.updateFieldValidators(effectivePropName, validators)
+      validationAPI.updateFieldValidators(effectivePropName, validators)
     }
   }, [validators])
 
   const onBlur = (event) => {
-    vcAPI.blurField(effectivePropName)
+    validationAPI.blurField(effectivePropName)
   }
 
   // TODO: verify that only one of onInputChange or onChange is supplied.
@@ -104,7 +104,7 @@ const ValidInput = withStyles(styles)(({
 
   const conditionalProps = {}
   const InputProps = { ...muiProps.InputProps, onBlur : onBlur }
-  const view = viewOnly || routes.getRenderMode() === 'view'
+  const view = viewOnly || extractPathInfo().actionMode === 'view'
 
   if (view) {
     conditionalProps.disabled = true
@@ -126,12 +126,13 @@ const ValidInput = withStyles(styles)(({
         const potentialVal = onChange(event)
         const newVal = potentialVal !== undefined
           ? potentialVal : event.target.value
-        vcAPI.updateFieldValue(effectivePropName, newVal)
+        validationAPI.updateFieldValue(effectivePropName, newVal)
       }
     }
     else {
-      conditionalProps.onChange = (event) =>
-        vcAPI.updateFieldValue(effectivePropName, event.target.value)
+      conditionalProps.onChange = (event) => {
+        validationAPI.updateFieldValue(effectivePropName, event.target.value)
+      }
     }
   }
 
@@ -142,7 +143,7 @@ const ValidInput = withStyles(styles)(({
       </InputAdornment>
   }
 
-  const errorMsg = vcAPI.getFieldErrorMessage(effectivePropName)
+  const errorMsg = validationAPI.getFieldErrorMessage(effectivePropName)
 
   // memo-ize this?
   const ValidatedTextField =

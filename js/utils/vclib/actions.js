@@ -13,11 +13,12 @@ const actionTypes = {
 }
 
 const actions = {
-  updateData  : (data) => ({ type : actionTypes.UPDATE_DATA, data }),
+  updateData : (data, updateCallback) =>
+    ({ type : actionTypes.UPDATE_DATA, data, updateCallback }),
   updateField : (fieldName, value) =>
-
     ({ type : actionTypes.UPDATE_FIELD_VALUE, fieldName, value }),
-  blurField             : (fieldName) => ({ type : actionTypes.BLUR_FIELD, fieldName }),
+  blurField : (fieldName, updateCallback) =>
+    ({ type : actionTypes.BLUR_FIELD, fieldName, updateCallback }),
   updateFieldValidators : (fieldName, validators) =>
     ({ type : actionTypes.UPDATE_FIELD_VALIDATORS, fieldName, validators }),
   excludeFieldFromExport : (fieldName) =>
@@ -29,9 +30,12 @@ const actions = {
   removeContextValidator : (validator) =>
     ({ type : actionTypes.REMOVE_CONTEXT_VALIDATOR, validator }),
 
-  rewindData   : (offset) => ({ type : actionTypes.OFFSET_DATA, offset : -offset }),
-  advanceData  : (offset) => ({ type : actionTypes.OFFSET_DATA, offset }),
-  resetData    : () => ({ type : actionTypes.RESET_DATA }),
+  rewindData : (offset, updateCallback) =>
+    ({ type : actionTypes.OFFSET_DATA, offset : -offset, updateCallback }),
+  advanceData : (offset, updateCallback) =>
+    ({ type : actionTypes.OFFSET_DATA, offset, updateCallback }),
+  resetData : (updateCallback) =>
+    ({ type : actionTypes.RESET_DATA, updateCallback }),
   resetHistory : () => ({ type : actionTypes.RESET_HISTORY }),
 
   initialSnapshot : () => ({ type : actionTypes.INITIAL_SNAPSHOT }),

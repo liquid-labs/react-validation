@@ -38,6 +38,14 @@ const fieldEntryTemplate = Object.freeze({
 
 const objToInputVal = (val) => val === null || val === undefined ? '' : val + ''
 
+const testCallback = (updateCallback, state, newState) => {
+  if (updateCallback && state.origData !== undefined) {
+    const priorData = exportDataFromFieldData(state.fieldData)
+    const newData = exportDataFromFieldData(newState.fieldData)
+    if (!isEqual(priorData, newData)) updateCallback(newData)
+  }
+}
+
 /**
  * 'validateFieldsValue' checks the given 'value' against the 'validators' and
  * returns the first error message produced or 'null' no validation failed.
@@ -118,6 +126,14 @@ const reducer = (state, action) => {
   case actionTypes.OFFSET_DATA : {
     // or a programatic update or reset
     let data = action.data || state.origData
+    if (!data && action.type !== actionTypes.RESET_DATA) {
+      // TODO: test that the 'process.env.NODE_ENV' construct does get removed in production build and whether we can combine with other logic.
+      if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.warn(`Data updated with '${data}'. To explicitly clear, use '{}'. Action:`, action)
+      }
+      return state
+    }
     let newHistoryIndex = 0 // for update
     if (action.type === actionTypes.OFFSET_DATA) {
       if (settings.historyLength <= 0) {
@@ -134,7 +150,7 @@ const reducer = (state, action) => {
       ...state,
       origData     : action.type === actionTypes.UPDATE_DATA ? data : state.origData,
       historyIndex : newHistoryIndex,
-      fieldData    : Object.entries(data).reduce((newFieldData, [fieldName, value]) => {
+      fieldData    : (data && Object.entries(data).reduce((newFieldData, [fieldName, value]) => {
         const fieldEntry = state.fieldData[fieldName]
         const errorMsg =
           validateFieldValue(value, fieldEntry && fieldEntry.validators)
@@ -144,7 +160,7 @@ const reducer = (state, action) => {
           errorMsg,
         }
         return newFieldData
-      }, {}),
+      }, {})) || {},
       lastUpdate : action.type === actionTypes.UPDATE_DATA ? data : state.lastUpdate
     }
     const newData = exportDataFromFieldData(newState.fieldData)
@@ -169,6 +185,7 @@ const reducer = (state, action) => {
         && settings.historyLength >= 0) {
       newState.historyIndex = newState.dataHistory.length - 1
     }
+    testCallback(action.updateCallback, state, newState)
     return newState
   }
 
@@ -202,11 +219,11 @@ const reducer = (state, action) => {
 
   case actionTypes.BLUR_FIELD : {
     const { fieldName } = action
-    // This should not be possible outside of programatic flim-flammery.
+    // We should always have a 'fieldEntry' outside of programatic flim-flammery.
     const fieldEntry = state.fieldData[fieldName] || { ...fieldEntryTemplate }
     if (!fieldEntry.touched || !fieldEntry.blurredAfterChange) {
       const newHistory = processHistoryUpdate(state)
-      return {
+      const newState = {
         ...state,
         dataHistory  : newHistory,
         historyIndex : (newHistory.length > 0 && newHistory.length - 1) || 0,
@@ -215,6 +232,8 @@ const reducer = (state, action) => {
           [fieldName] : { ...fieldEntry, touched : true, blurredAfterChange : true }
         }
       }
+      testCallback(action.updateCallback, state, newState)
+      return newState
     }
     else /* field already touched, no change in history */ return state
   }
@@ -223,14 +242,16 @@ const reducer = (state, action) => {
     // TODO: find a reliable way to warn users if this value is changed after
     // "initialization".
     const { fieldName } = action
-    // TODO: Note, we are not checking whether the field entry exists first. We
-    // should formalize a rule that the value must be set before validators
-    // (field or context) or exclusion.
-    if (state.fieldData[fieldName].excludeFromExport) return state
+
+    const fieldData = state.fieldData[fieldName]
+      ? state.fieldData
+      : { ...state.fieldData, [fieldName] : {...fieldEntryTemplate} }
+
+    if (fieldData[fieldName].excludeFromExport) return state
     else {
       return {
         ...state,
-        fieldData : Object.entries(state.fieldData).reduce((newFD, [entryName, fieldEntry]) => {
+        fieldData : Object.entries(fieldData).reduce((newFD, [entryName, fieldEntry]) => {
           if (fieldName === entryName) {
             newFD[entryName] = { ...fieldEntry, excludeFromExport : true }
           }

@@ -3,11 +3,31 @@
  * 'ValidationContext' test. Here we generally test edge cases, though we also
  * test along the way as we setup the edge cases.
  */
-/* global beforeAll describe expect test */
+/* global beforeAll describe expect jest test */
 import { reducer, INITIAL_STATE } from './reducer'
 import { actions } from './actions'
 
 describe('ValidationContext/reducer', () => {
+  describe(`in the initial state`, () => {
+    test(`will not invoke callback on immediate reset`, () => {
+      const callback = jest.fn()
+      reducer(INITIAL_STATE, actions.resetData(callback))
+      expect(callback).toHaveBeenCalledTimes(0)
+    })
+
+    test.each([null, undefined])(`will issue (in non-production env) if attempt to update '%s'`, (value) => {
+      const warningSpy = jest.spyOn(console, 'warn').mockImplementation()
+      warningSpy.mockClear()
+      reducer(INITIAL_STATE, actions.updateData(value))
+      expect(warningSpy).toHaveBeenCalledTimes(1)
+      warningSpy.mockReset()
+    })
+
+    test(`can configure exclusions`, () => {
+      expect(reducer(INITIAL_STATE, actions.excludeFieldFromExport('foo'))).toHaveProperty('fieldData.foo')
+    })
+  })
+
   describe('after updating validators', () => {
     const wrongifier = () => 'Wrong!'
     const validators = [ wrongifier ]
