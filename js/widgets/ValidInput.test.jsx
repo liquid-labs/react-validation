@@ -36,7 +36,7 @@ const TestData = () => {
 
 describe(`ValidInput`, () => {
   beforeAll(() => window.history.pushState({}, '', '/foos/edit/'))
-  
+
   test('should raise an exception if used outside a ValidationContext', () => {
     const errMock = jest.spyOn(console, 'error').mockImplementation()
     expect(() => { render(<ValidInput initialValue='foo' />); }).toThrow()
@@ -247,5 +247,49 @@ describe(`ValidInput`, () => {
         })
       })
     }) // with onChange (value modifying)
+
+    describe("under non-edit route", () => {
+      beforeAll(() => window.history.pushState({}, '', '/foos/'))
+
+      describe("with 'viewOnly={false}'", () => {
+        let fooInput
+
+        beforeAll(() => {
+          cleanup()
+          const { getByLabelText } = render(
+            <ValidationContext data={{ foo : "fooVal" }}>
+              <ValidInput id="foo" label="foo" viewOnly={false} />
+              <TestData />
+            </ValidationContext>
+          )
+          fooInput = getByLabelText('foo')
+          fireEvent.change(fooInput, { target : { value : 'foo2' } })
+        })
+
+        test("can edit input", () => {
+          expect(fooInput.value).toBe('foo2')
+        })
+      })
+
+      describe("with 'viewOnly' unset", () => {
+        let fooInput
+
+        beforeAll(() => {
+          cleanup()
+          const { getByLabelText } = render(
+            <ValidationContext data={{ foo : "fooVal" }}>
+              <ValidInput id="foo" label="foo" />
+              <TestData />
+            </ValidationContext>
+          )
+          fooInput = getByLabelText('foo')
+          fireEvent.change(fooInput, { target : { value : 'foo2' } })
+        })
+
+        test("cannot edit input", () => {
+          expect(fooInput.value).toBe('fooVal')
+        })
+      })
+    }) // under non-edit route
   }) // within a valid context
 })
