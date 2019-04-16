@@ -104,7 +104,9 @@ const ValidInput = withStyles(styles)(({
 
   const conditionalProps = {}
   const InputProps = { ...muiProps.InputProps, onBlur : onBlur }
-  const view = viewOnly || extractPathInfo().actionMode === 'view'
+  const view = viewOnly !== undefined
+    ? viewOnly
+    : extractPathInfo().actionMode === 'view'
 
   if (view) {
     conditionalProps.disabled = true
