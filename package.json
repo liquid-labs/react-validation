@@ -1,6 +1,6 @@
 {
   "name": "@liquid-labs/react-validation",
-  "version": "1.0.0-prototype.1",
+  "version": "1.0.0-prototype.2",
   "description": "Provides ValidForm and ValidInput components, which add validation to Material UI components.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
